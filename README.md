@@ -22,10 +22,10 @@ Around this core, the app can also explain concepts from the official Python doc
 
 | Mode | What the learner does | How it works |
 |---|---|---|
-| 🛠️ **Guided Feedback** | Writes code for a problem and runs it; asks for Hint 1, then Hint 2, then the Explanation | Sandbox (subprocess + 5 s limit + safety checks) → **fine-tuned Qwen2.5-Coder-1.5B (LoRA)** via Ollama → rule-based guardrail |
-| 📖 **Concept Explanation** | Asks a question such as "What does range(5) give me?" | **RAG:** 129 chunks of the official Python docs in **ChromaDB** → Gemini answers *only* from the retrieved chunks and cites them |
-| ✨ **Practice Generation** | Gets a new exercise for a topic and level | Gemini writes an MBPP-style exercise as **JSON**. It is shown only if the JSON is valid, the tests are safe, and the hidden solution **passes all its own tests** |
-| 📈 **My Progress** | Sees mastery per topic and what to do next | **SQLite** stores every run, hint and result. Mastery update: m ← m + 0.3 (credit − m). A rule picks the next topic and difficulty |
+| **Guided Feedback** | Writes code for a problem and runs it; asks for Hint 1, then Hint 2, then the Explanation | Sandbox (subprocess + 5 s limit + safety checks) → **fine-tuned Qwen2.5-Coder-1.5B (LoRA)** via Ollama → rule-based guardrail |
+| **Concepts** | Asks a question such as "What does range(5) give me?" | **RAG:** 129 chunks of the official Python docs in **ChromaDB** → Gemini answers *only* from the retrieved chunks and cites them |
+| **Practice** | Gets a new exercise for a topic and level | Gemini writes an MBPP-style exercise as **JSON**. It is shown only if the JSON is valid, the tests are safe, and the hidden solution **passes all its own tests** |
+| **Progress** | Sees mastery per topic and what to do next | **SQLite** stores every run, hint and result. Mastery update: m ← m + 0.3 (credit − m). A rule picks the next topic and difficulty |
 
 ## Architecture
 
@@ -137,8 +137,8 @@ cd ..
 .\.venv\Scripts\python.exe -m streamlit run app\app.py
 ```
 
-- **System check:** the sidebar's **System check** should say *all OK ✅*.
-- **First start:** the first visit to Concept Explanation downloads ChromaDB's small embedding model (80 MB) once.
+- **System check:** under **System** in the sidebar, both *Tutor model* and *Gemini* should have a green dot.
+- **First start:** the first visit to Concepts downloads ChromaDB's small embedding model (80 MB) once.
 
 ### If something is wrong
 | Problem | Fix |
@@ -152,16 +152,16 @@ cd ..
 ---
 
 ## A 5-minute demo
-1. **Guided Feedback → Try it yourself → Sequential search.** Write `if x < seq[i]:` instead of `<=`, then press **Ctrl+Enter**.
+1. **Guided Feedback → Course problems → Sequential search.** Write `if x < seq[i]:` instead of `<=`, then press **Ctrl+Enter**.
    - The result is 9 of 11 tests passed.
-   - Click **💡 Get a hint**, then **Show Hint 2**. No line of the solution appears.
+   - Click **Get a hint**, then **Reveal Hint 2**. The Tutor card opens one step at a time, and no line of the solution appears.
    - Fix the code. It says *Help used: Hint 2* and *Progress saved*.
-2. **Examples from real students:** pick a test row the model never saw during training, and compare the model's hints with our dataset answer.
-3. **Concept Explanation:**
-   - Click *"What does an IndexError mean?"*, then open **Sources**.
+2. **Real student attempts:** pick a held-out test row the model never saw during training, and compare the model's hints with our dataset answer.
+3. **Concepts:**
+   - Click the suggestion *"What does an IndexError mean?"*. The answer lists the doc passages it cites.
    - Ask *"How do I build a website with Django?"*. It refuses, because the notes don't cover it.
-4. **Practice Generation:** click **✨ New exercise**. The grey line says its hidden solution passes all its tests.
-5. **My Progress:** mastery bars, recent exercises, and **Practise it →** for the suggested next topic.
+4. **Practice:** choose a topic and level, then click **Create exercise**. The green tag says its hidden solution passes all its tests.
+5. **Progress:** KPI cards, mastery bars, recent exercises, and **Practise this** for the recommended next topic.
 
 ---
 
@@ -169,7 +169,9 @@ cd ..
 
 | Folder or file | In plain words |
 |---|---|
-| `app/app.py` | The web page (Streamlit). It is the only file you run |
+| `app/app.py` | The web app (Streamlit): the 4 pages, top navigation and sidebar. It is the only file you run |
+| `app/ui.py` | The design system: colour tokens for light and dark, the style sheet, and building blocks (page header, cards, tags, test table, hint stepper, progress bars). All model text is HTML-escaped |
+| `.streamlit/config.toml` | Theme (paper-and-ink palettes for light and dark; Inter, Fraunces and JetBrains Mono fonts) and app settings |
 | `app/config.py` | Every setting in one place: model names, the 5 s time limit, hint credits, mastery rate, difficulty bands |
 | `app/tutor/sandbox.py` | Runs learner code safely: size limit, a structure check (`ast`), a separate process with a clean environment, and a 5 s timeout |
 | `app/tutor/ollama_client.py` | Talks to the fine-tuned model in Ollama, using the exact training prompt |
