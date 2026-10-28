@@ -1,0 +1,23 @@
+Setting,Value
+Base model,Qwen/Qwen2.5-Coder-1.5B-Instruct
+Fine-tuning method,LoRA on a 16-bit base model (Unsloth + Hugging Face Trainer)
+LoRA rank r / alpha / dropout,8 / 16 / 0.05
+LoRA target modules,"q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj"
+Trainable parameters,"9,232,384 of 1,552,946,688 (0.59%)"
+Epochs,3
+Learning rate / scheduler / warmup,0.0002 / linear / 3 steps
+Batch size x gradient accumulation,2 x 2 = 4
+Optimizer / weight decay,AdamW / 0.01
+Max sequence length (longest example),1024 (791 tokens)
+Loss on,assistant answer only (prompt tokens masked)
+Seed,42
+Rows: train / validation / test,40 / 7 / 12
+Training steps,30
+Training time (min),0.8
+Final training loss,1.4067
+Best validation loss,1.5349
+GPU,Tesla T4 (16 GB)
+Export,GGUF Q4_K_M (986 MB)
+Library versions,"unsloth 2026.10.9, transformers 5.17.0, peft 0.21.2, torch 2.11.0+cu130"
+5-fold CV validation loss (mean ± std),1.4858 ± 0.0875
+5-fold CV total time (min),4.4

@@ -1,0 +1,28 @@
+%% Fig. (a) Training pipeline. Numbers are our real ones (dataset/README.md, training_outputs/training_settings.md).
+flowchart LR
+    subgraph S1["1 · Data preparation"]
+        direction TB
+        A["Refactory dataset<br/>1,783 real wrong attempts<br/>5 problems"] --> B["Sandboxed test runner<br/>subprocess + time limit"]
+        B --> C["Keep failing attempts (1,722)<br/>record real error<br/>auto bug type"]
+        C --> D["Stratified sampling<br/>60 rows, seed 42"]
+        D --> E["LLM-drafted labels<br/>hint 1, hint 2,<br/>explanation, fixed code"]
+        E --> F["Author review<br/>and correction"]
+        F --> G["Validation<br/>course tests + 40 random inputs<br/>+ leak check"]
+        G --> H[("beginner_bugs.csv<br/>59 rows")]
+    end
+
+    subgraph S2["2 · Fine-tuning (Colab T4)"]
+        direction TB
+        I["Prompt formatting<br/>system + user + assistant"] --> J["Stratified split<br/>train 40 / val 7 / test 12<br/>+ 5-fold CV"]
+        J --> K["LoRA fine-tuning<br/>Qwen2.5-Coder-1.5B-Instruct<br/>r = 8, alpha = 16"]
+        K --> L["Best checkpoint<br/>lowest validation loss"]
+        L --> M["Merge adapter +<br/>GGUF export, Q4_K_M<br/>986 MB"]
+    end
+
+    subgraph S3["3 · Laptop (CPU)"]
+        direction TB
+        N["Ollama<br/>model: beginner-tutor"]
+    end
+
+    S1 -- "59-row CSV" --> S2
+    S2 -- "GGUF file" --> S3

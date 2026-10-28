@@ -1,0 +1,78 @@
+[
+  {
+    "id": 27,
+    "bug_type": "logic",
+    "hint_1": "When an item appears more than once, which copy does your code keep: the first one or the last one?",
+    "hint_2": "On line 4 `lst[0]` is kept only if it does not appear again later in `lst[1:]`, so the earlier copies are dropped and the last copy survives. Try deciding about the last item instead, by checking whether it already appeared earlier in the list.",
+    "explanation": "Right now an item is skipped whenever another copy of it comes later, so only its last copy is kept. For [1, 5, 1, 1, 3, 2] the first 1 is dropped and the 1 after the 5 is kept, which gives [5, 1, 3, 2]. The task wants the first copy, so an item should be skipped only when the same value already appeared before it. Always check which side of the list you compare against when you remove duplicates.",
+    "fixed_code": "def remove_extras(lst):\n    if lst == []:\n        return []\n    elif lst[-1] not in lst[:-1]:\n        return remove_extras(lst[:-1]) + [lst[-1],]\n    else:\n        return remove_extras(lst[:-1])\n"
+  },
+  {
+    "id": 28,
+    "bug_type": "runtime",
+    "hint_1": "Which list are you trying to add the new item to? Check that every name you use was created earlier in the function.",
+    "hint_2": "On line 5 the code calls `append` on `new`, but no variable called `new` exists; your list is called `new_list`. Also, `append` already changes the list by itself, so its result does not need to be added with `+=`.",
+    "explanation": "Python only knows names that were created before they are used, and this function never creates a variable called `new`. That is why it stops with a NameError on line 5. Your list is `new_list`, and calling append on it already adds the item, because append changes the list in place and gives back nothing. Always use the exact name of the variable you made.",
+    "fixed_code": "def remove_extras(lst):\n    new_list = []\n    for elem in lst:\n        if elem not in new_list:\n            new_list.append(elem)\n    return new_list \n"
+  },
+  {
+    "id": 29,
+    "bug_type": "logic",
+    "hint_1": "In your loop, is the loop variable a position in the list or one of the values in it? Think about what you really want to add to the result.",
+    "hint_2": "On line 5 `lst[i]` uses the value `i` as if it were a position, so it picks a different item (or one past the end). `i` is already the item you want to add. Also check what happens on line 2 when the list is empty, and that the function gives back a list, not a tuple.",
+    "explanation": "A `for i in lst` loop gives you the items themselves, not their positions. So `lst[i]` looks up the item at position i, which is some other item, and that is why (1, 1, 2) comes back instead of [1, 2, 3]; for bigger values it can even go past the end of the list. Use the item directly when the loop goes over the values. The tests also expect a list, and an empty input must work, so the result should start empty and be turned into a list at the end.",
+    "fixed_code": "def remove_extras(lst):\n    seq = ()\n    for i in lst:\n        if i not in seq:\n            seq = seq + (i,)\n    return list(seq)\n    pass\n"
+  },
+  {
+    "id": 30,
+    "bug_type": "runtime",
+    "hint_1": "What happens if the list you get is empty? Is there a first item to take?",
+    "hint_2": "On line 2 `new_list` starts with `lst[0]`, but an empty `lst` has no item at position 0. Your loop already adds the first item on its own, so `new_list` can start empty.",
+    "explanation": "Line 2 reads `lst[0]`, the item at position 0, before the loop even starts. When the test passes an empty list there is no position 0, so Python stops with an IndexError. The loop would add the first item anyway, because it is not yet in the new list. Always check that your code still works when the input is empty.",
+    "fixed_code": "def remove_extras(lst):\n    new_list=[]\n    for i in lst:\n        if i in new_list:\n            continue\n        else:\n            new_list.append(i)\n    return new_list\n"
+  },
+  {
+    "id": 31,
+    "bug_type": "runtime",
+    "hint_1": "What happens to the length of a list when you delete an item from it while you are still looping over its positions?",
+    "hint_2": "On line 4 the inner loop uses `l`, the length from before any deletions, but `del lst[j]` on line 6 makes the list shorter, so `j` soon goes past the end. Going forward also skips the item that slides into the deleted spot; try walking `j` from the end of the current list back towards `i`.",
+    "explanation": "The ranges are worked out once with `l`, the starting length, but every `del` removes an item and shifts the later items one place left. So later values of `j` point past the end of the shorter list, and Python stops with an IndexError on line 5. If you delete items while looping by position, the positions stop matching the list. A safe trick is to go from the end towards the front and use the list's current length, so a deletion never moves items you still have to visit.",
+    "fixed_code": "def remove_extras(lst):\n    l=len(lst)\n    for i in range(l):\n        for j in range(len(lst)-1,i,-1):\n            if lst[i]==lst[j]:\n                del lst[j]\n    return lst\n\n\n"
+  },
+  {
+    "id": 32,
+    "bug_type": "logic",
+    "hint_1": "A while loop stops only when its condition becomes false. Does anything inside your loop move it forward to the next item?",
+    "hint_2": "Inside the `while` loop starting on line 4, `x` is never changed, so the loop looks at `lst[x]` again and again forever. Also check the `in` test on line 5 (you want items that are not yet in `new`), how line 6 adds a single item, and the `+1` in the loop condition.",
+    "explanation": "The loop keeps going while `x` is small enough, but nothing in the loop ever makes `x` bigger. So it checks the same item over and over and never finishes, which is why the test timed out. Every while loop needs a step that moves it towards its stop condition, such as adding 1 to the counter. After that, make sure the loop keeps items that are not yet in `new` and stops before going past the last position.",
+    "fixed_code": "def remove_extras(lst):\n    new = []\n    x = 0\n    while x < len(lst):\n        if lst[x] not in new:\n            new += [lst[x]]\n        x += 1\n    return new\n"
+  },
+  {
+    "id": 33,
+    "bug_type": "runtime",
+    "hint_1": "Do extra brackets around a value turn it into a tuple? Think about what makes a one-item tuple in Python.",
+    "hint_2": "On line 5 `((x))` is just the number `x` with extra brackets, so the code tries to add a number to the tuple `new_list`. A one-item tuple needs a comma. The tests also expect a list back, not a tuple.",
+    "explanation": "In Python, brackets alone only group things, so `((x))` is still a plain number. Adding a number to a tuple with += is not allowed, which is why the TypeError says it can only concatenate tuple to tuple. A tuple with one item needs a comma after the item. Also remember that the tests compare the result with a list, so a tuple has to be turned into a list before it is returned.",
+    "fixed_code": "def remove_extras(lst):\n    new_list = ()\n    for x in lst:\n        if x not in new_list:\n            new_list += (x,)\n    return list(new_list)\n"
+  },
+  {
+    "id": 34,
+    "bug_type": "runtime",
+    "hint_1": "How do you call a method in Python and give it the value it should use?",
+    "hint_2": "On line 5 `new_list.append.item` uses a dot, so Python looks for something called `item` inside the `append` method. The item should be passed to `append` inside round brackets instead.",
+    "explanation": "A dot means \"look inside this thing for a name\", so `append.item` asks the append method for an attribute called item, which does not exist. That is why Python gives an AttributeError on line 5. To run a method you call it with round brackets and put the value inside them. Remember: dots reach names, brackets call functions and pass values.",
+    "fixed_code": "def remove_extras(lst):\n    new_list = []\n    for item in lst:\n        if item not in new_list:\n            new_list.append(item)\n    return new_list\n"
+  },
+  {
+    "id": 35,
+    "bug_type": "runtime",
+    "hint_1": "What happens to the positions in a list when you remove an item from it while your loop is still counting through those positions?",
+    "hint_2": "On line 2 the range is fixed at the start, but `lst.pop(i)` on line 5 makes the list shorter, so `i` later points past the end on line 3. Going forward also removes the first copy of a repeated item instead of a later one; try walking `i` from the end of the list towards the front.",
+    "explanation": "The range on line 2 is built once from the starting length, but each `pop` makes the list one item shorter. Later values of `i` then point past the end, which is why line 3 gives an IndexError. Going from the front also throws away the first copy and keeps the last one, while the task wants the first copy kept. When you remove items while looping by position, going from the back to the front keeps the positions you still need correct.",
+    "fixed_code": "def remove_extras(lst):\n    for i in range(len(lst)-1, -1, -1):\n        num = lst[i]\n        if lst.count(num) > 1:\n            lst.pop(i)\n    return lst\n"
+  },
+  {
+    "id": 36,
+    "exclude_reason": "Returns inside the loop after the first element, so the approach cannot be fixed with a small change; a minimal fix that passes the course tests is still wrong on other inputs (found by random tests)."
+  }
+]

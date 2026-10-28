@@ -1,0 +1,98 @@
+[
+ {
+  "id": 49,
+  "bug_type": "logic",
+  "hint_1": "When the inner loop finds a number bigger than the one you picked, does that bigger number really get remembered as the new biggest?",
+  "hint_2": "On line 7 the bigger number is saved in a new name, `oldest`, so `biggest` never changes and stays equal to `lst[0]`.",
+  "explanation": "Right now `biggest` is set to the first item and is never updated, because the loop stores the bigger value in `oldest` instead. So each round just takes whatever number is at the front of the list, and the result keeps the original order, giving [9, 9, 4, 9, 7]. When you track a running biggest value, always update the same variable you compare against.",
+  "fixed_code": "def top_k(lst, k):\n    sort = []\n    while lst:\n        biggest = lst[0]\n        for i in lst[1:]:\n            if i > biggest:\n                biggest = i\n        lst.remove(biggest)\n        sort.append(biggest)\n    \n    n = 1\n    sort_k = []\n    while n <= k:\n        sort_k.append(sort.pop(0))\n        n += 1\n    \n    return sort_k\n        \n"
+ },
+ {
+  "id": 50,
+  "bug_type": "logic",
+  "hint_1": "When your function calls itself, it gives back a list of the remaining top numbers. Where does that list go, and does it ever reach your answer?",
+  "hint_2": "On line 11 the result of `top_k(lst, k-1)` is not saved anywhere, so line 12 returns `l`, which only holds the one number added on line 10. The base case on lines 5 and 6 also returns the whole leftover list instead of stopping cleanly.",
+  "explanation": "Each call adds just one number to its own list `l`, then calls itself, but the list that the inner call returns is thrown away. So the outer call only returns its own single number, which is why the answer is [9]. In recursion, the value returned by the smaller call must be joined with your own part, and the stopping case should return exactly what is left to add (for k equal to 0, nothing).",
+  "fixed_code": "def top_k(lst, k):\n    l = []\n    if k > len(lst):\n        return False\n    elif k == 0:\n        return []\n    else:\n        a = max(lst)\n        lst.remove(a)\n        l.append(a)\n        l += top_k(lst, k-1)\n        return l\n        \n    # Fill in your code here\n    pass\n"
+ },
+ {
+  "id": 51,
+  "bug_type": "runtime",
+  "hint_1": "Check the name of your loop variable. Is the name you use inside the loop the same one you created in the loop header?",
+  "hint_2": "On line 6 (and line 7) the code uses `ele`, but the loop on line 5 names each item `element`. Also look at lines 9 and 10: after the loop they should use the biggest number found, and the check for k items should happen before a number is added.",
+  "explanation": "Python only knows names that were created earlier, and the loop on line 5 creates `element`, not `ele`. So when line 6 reaches `ele`, Python stops with a NameError. Always use the exact same spelling for a variable everywhere. After that, remember that the number to remove and keep is the one stored in `biggest`, and that when k is 0 the result should stay empty.",
+  "fixed_code": "def top_k(lst, k):\n    sort = []\n    while lst: \n        if len(sort)==k:\n            break\n        biggest = lst[0]\n        for element in lst:\n            if element > biggest:\n                biggest = element\n                \n        lst.remove(biggest)\n        sort.append(biggest)\n    return sort\n"
+ },
+ {
+  "id": 52,
+  "bug_type": "runtime",
+  "hint_1": "Adding to a list with plus-equals expects another list on the right side. What kind of value does max give you?",
+  "hint_2": "On line 6, `max(lst)` is a single number, and `op += ...` needs a list there. Also notice that the biggest number is never taken out of `lst`, so every round would pick the same one.",
+  "explanation": "The plus-equals on a list joins another list (or other collection) onto it, item by item. Here `max(lst)` is just one int, and Python cannot go through an int item by item, so it says 'int' object is not iterable. To add one number, put it in a list or use append. After adding it, remove it from `lst` so the next round finds the next largest number.",
+  "fixed_code": "def top_k(lst, k):\n    count = 0\n    op = []\n    big = lst[0]\n    while count < k:\n        op += [max(lst)]\n        lst.remove(max(lst))\n        count += 1\n    return op\n            \n    \n"
+ },
+ {
+  "id": 53,
+  "bug_type": "logic",
+  "hint_1": "What happens in a round where the first number is already the biggest one? Does the list get any shorter then?",
+  "hint_2": "Lines 8 and 9 are indented inside the `if` on line 6, so a number is only removed and saved when something bigger than `largest` is found. They should run once per round, after the `for` loop is done.",
+  "explanation": "The removing and saving happen inside the `if`, so they only run when a bigger number turns up during the loop. When the first number in `lst` is already the largest, nothing is removed, `lst` never becomes empty, and the `while` loop runs forever, which causes the timeout. A loop that waits for a list to become empty must make the list shorter on every round.",
+  "fixed_code": "def top_k(lst, k):\n    a=[]\n    while lst:\n        largest = lst[0]\n        for i in lst:\n            if i > largest:\n                largest = i\n        lst.remove(largest)\n        a.append(largest)\n    return a[:k]\n"
+ },
+ {
+  "id": 54,
+  "bug_type": "runtime",
+  "hint_1": "Taking an item out by position and taking it out by value are different things. Which one is your code doing with the biggest number?",
+  "hint_2": "On line 4, `lst.pop(...)` treats `max(lst)` as a position, so it tries to pop position 9 of a list with 9 items. Also the `while` condition on line 3 compares `len(lst)` with itself minus k, which stays true until the list is empty.",
+  "explanation": "pop takes an index, which is the position of an item, not the item's value. Here `max(lst)` is 9, but the list only has positions 0 to 8, so Python says the pop index is out of range. To remove the biggest number you first need its position, or you can remove it by value. Also, since both sides of the loop condition change together, the loop should count how many numbers you have collected instead.",
+  "fixed_code": "def top_k(lst, k):\n    new = []\n    while len(new) < k:\n        new.append(lst.pop(lst.index(max(lst))))\n        \n    return new\n        \n"
+ },
+ {
+  "id": 55,
+  "bug_type": "logic",
+  "hint_1": "If someone asks for the top 0 numbers, how many numbers should come back?",
+  "hint_2": "Look at the `elif k == 0` case on line 5. It returns the whole input list `lst`, but asking for zero numbers should give an empty list.",
+  "explanation": "When k is 0 the code returns `lst` itself, so all the numbers come back, in their original order. That is why the test got [4, 5, 2, 3, 1, 6] instead of []. A special case must return the same kind of answer as the normal case, here a list holding exactly k numbers.",
+  "fixed_code": "def top_k(lst, k):\n    if lst == []:\n        return []\n    elif k == 0:\n        return []\n    else:\n        final = []\n        while lst:\n            element = max(lst)\n            final += [element,]\n            lst.remove(element)\n            if len(final) == k:\n                break\n        return final\n"
+ },
+ {
+  "id": 56,
+  "bug_type": "runtime",
+  "hint_1": "Your loop should stop after k numbers. Does the loop condition ever become false while numbers are being removed?",
+  "hint_2": "On line 3, both sides of the condition use `len(lst)`, so when the list shrinks both sides shrink together and the condition stays true. The loop keeps going until `lst` is empty, and then `max(lst)` on line 4 fails.",
+  "explanation": "The condition compares the length of the list with that same length minus k, which is always bigger when k is more than 0. So the loop never stops by itself and removes every number, and on the next round `max` is called on an empty list, which gives the ValueError. A loop condition must use something that changes toward the stopping point, such as how many numbers you have collected.",
+  "fixed_code": "def top_k(lst, k):\n    new = []\n    while len(new) < k:\n        top = max(lst) \n        new.append(top)\n        lst.remove(top)\n        \n    return new\n        \n"
+ },
+ {
+  "id": 57,
+  "bug_type": "runtime",
+  "hint_1": "Your loop runs while a counter is below k. What makes that counter go up?",
+  "hint_2": "The `while` loop on line 4 checks `counter`, but nothing inside the loop ever changes it, so the loop keeps removing numbers until `lst` is empty. Line 5 also appends what `remove` gives back, which is None, and the function never returns `new_lst`.",
+  "explanation": "Since `counter` stays at 0, the loop never stops by itself and keeps removing the biggest number. Once the list is empty, `max` gets an empty list and Python raises a ValueError. A counting loop must increase its counter every round. After that, keep in mind that remove changes the list but gives back None, and a function needs a return statement to give back its result.",
+  "fixed_code": "def top_k(lst, k):\n    counter=0\n    new_lst=[]\n    while counter<k:\n        new_lst.append(max(lst))\n        lst.remove(max(lst))\n        counter+=1\n    return new_lst\n"
+ },
+ {
+  "id": 58,
+  "bug_type": "runtime",
+  "hint_1": "Look closely at the spelling of your result list each time you use it. Is it the same name everywhere?",
+  "hint_2": "Line 7 creates `sort_list`, but line 9 appends to `sort_lst`, a name that was never created. Also, the first loop on line 4 runs k times, but you want to remove the smallest numbers until only k are left, which is what `n` on line 2 counts.",
+  "explanation": "Python treats `sort_list` and `sort_lst` as two different names, and only the first one exists, so line 9 stops with a NameError. Names must be spelled exactly the same every time. Once that works, check how many small numbers are removed: to keep k numbers you remove len(lst) minus k of them, not k.",
+  "fixed_code": "def top_k(lst, k):\n    n = len(lst) - k\n    counter = 0\n    while counter < n:\n        lst.remove(min(lst))\n        counter = counter + 1\n    sort_list = []\n    while lst != []:\n        sort_list.append(max(lst))\n        lst.remove(max(lst))\n    return sort_list\n    \n"
+ },
+ {
+  "id": 59,
+  "bug_type": "runtime",
+  "hint_1": "Adding to a list with plus-equals expects another list on the right side. What kind of value does max give you?",
+  "hint_2": "On line 6, `max(lst)` is a single number, but `new_list += ...` needs a list. Also check line 7, which does not change `k`, and line 8, which returns `lst` instead of the list you built.",
+  "explanation": "The plus-equals on a list adds every item of another collection, but `max(lst)` is one int, and Python cannot go through an int item by item, so it raises a TypeError. To add a single number, put it inside a list or use append. After that, remember to remove each chosen number from the input, to really lower k by storing the new value, and to return the list you built.",
+  "fixed_code": "def top_k(lst, k):\n    new_list = []\n    for i in lst[:]:\n        if k==0:\n            break\n        new_list+=[max(lst)]\n        lst.remove(max(lst))\n        k=k-1\n    return new_list\n    pass\n"
+ },
+ {
+  "id": 60,
+  "bug_type": "logic",
+  "hint_1": "The function is given k to say how many numbers to return. Does your code actually use k anywhere?",
+  "hint_2": "On line 6 the slice always uses 5, so you always get at most 5 numbers no matter what `k` is.",
+  "explanation": "The loop builds the full list from largest to smallest correctly, but the slice at the end keeps a fixed number of items, 5. When the test asks for 6 numbers, only 5 come back, so the 1 is missing. Use the parameter that the function receives instead of a fixed number, so the code works for any k.",
+  "fixed_code": "def top_k(lst, k):\n    tmp = []\n    while len(lst) > 0:\n        tmp.append(max(lst))\n        lst.remove(max(lst))\n    return tmp[:k]\n"
+ }
+]

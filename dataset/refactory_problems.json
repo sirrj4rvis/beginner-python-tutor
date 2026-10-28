@@ -1,0 +1,237 @@
+[
+  {
+    "task_id": "refactory_q1",
+    "name": "Sequential search",
+    "function": "search",
+    "topic": "loops",
+    "difficulty": "easy",
+    "description": "Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.",
+    "global_code": "",
+    "tests": [
+      {
+        "input": "search(42, (-5, 1, 3, 5, 7, 10))",
+        "expected": "6"
+      },
+      {
+        "input": "search(42, [1, 5, 10])",
+        "expected": "3"
+      },
+      {
+        "input": "search(5, (1, 5, 10))",
+        "expected": "1"
+      },
+      {
+        "input": "search(7, [1, 5, 10])",
+        "expected": "2"
+      },
+      {
+        "input": "search(3, (1, 5, 10))",
+        "expected": "1"
+      },
+      {
+        "input": "search(-5, (1, 5, 10))",
+        "expected": "0"
+      },
+      {
+        "input": "search(10, (-5, -1, 3, 5, 7, 10))",
+        "expected": "5"
+      },
+      {
+        "input": "search(-100, (-5, -1, 3, 5, 7, 10))",
+        "expected": "0"
+      },
+      {
+        "input": "search(0, (-5, -1, 3, 5, 7, 10))",
+        "expected": "2"
+      },
+      {
+        "input": "search(100, [])",
+        "expected": "0"
+      },
+      {
+        "input": "search(-100, ())",
+        "expected": "0"
+      }
+    ]
+  },
+  {
+    "task_id": "refactory_q2",
+    "name": "Unique dates/months",
+    "function": "unique_day, unique_month, contains_unique_day",
+    "topic": "functions",
+    "difficulty": "medium",
+    "description": "Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.",
+    "global_code": "\n\ntuple_of_possible_birthdays = (('May', '15'),\n                              ('May', '16'),\n                              ('May', '19'),\n                              ('June', '17'),\n                              ('June', '18'),\n                              ('July', '14'),\n                              ('July', '16'),\n                              ('August', '14'),\n                              ('August', '15'),\n                              ('August', '17'))\n\n",
+    "tests": [
+      {
+        "input": "unique_day(\"1\", ((\"January\",\"1\"),(\"February\",\"1\")))",
+        "expected": "False"
+      },
+      {
+        "input": "unique_month(\"January\", ((\"January\",\"1\"),(\"January\",\"2\")))",
+        "expected": "False"
+      },
+      {
+        "input": "unique_month(\"January\", ((\"January\",\"1\"),(\"February\",\"1\")))",
+        "expected": "True"
+      },
+      {
+        "input": "contains_unique_day(\"January\", ((\"January\",\"1\"),(\"January\",\"2\")))",
+        "expected": "True"
+      },
+      {
+        "input": "contains_unique_day(\"January\", ((\"January\",\"1\"),(\"February\",\"1\")))",
+        "expected": "False"
+      },
+      {
+        "input": "contains_unique_day(\"February\", ((\"January\",\"10\"),(\"February\",\"1\"),(\"February\",\"10\")))",
+        "expected": "True"
+      },
+      {
+        "input": "unique_day(\"3\", ((\"January\",\"1\"),(\"January\",\"2\")))",
+        "expected": "False"
+      },
+      {
+        "input": "unique_month(\"March\", ((\"January\",\"1\"),(\"February\",\"1\")))",
+        "expected": "False"
+      },
+      {
+        "input": "unique_day(\"1\", ((\"January\",\"1\"),(\"January\",\"2\")))",
+        "expected": "True"
+      },
+      {
+        "input": "unique_day(\"16\", tuple_of_possible_birthdays)",
+        "expected": "False"
+      },
+      {
+        "input": "unique_day(\"17\", tuple_of_possible_birthdays)",
+        "expected": "False"
+      },
+      {
+        "input": "unique_day(\"18\", tuple_of_possible_birthdays)",
+        "expected": "True"
+      },
+      {
+        "input": "unique_day(\"19\", tuple_of_possible_birthdays)",
+        "expected": "True"
+      },
+      {
+        "input": "unique_month(\"May\", tuple_of_possible_birthdays)",
+        "expected": "False"
+      },
+      {
+        "input": "unique_month(\"June\", tuple_of_possible_birthdays)",
+        "expected": "False"
+      },
+      {
+        "input": "contains_unique_day(\"June\", tuple_of_possible_birthdays)",
+        "expected": "True"
+      },
+      {
+        "input": "contains_unique_day(\"July\", tuple_of_possible_birthdays)",
+        "expected": "False"
+      }
+    ]
+  },
+  {
+    "task_id": "refactory_q3",
+    "name": "Duplicate elimination",
+    "function": "remove_extras",
+    "topic": "lists",
+    "difficulty": "easy",
+    "description": "Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.",
+    "global_code": "from collections import OrderedDict\n",
+    "tests": [
+      {
+        "input": "remove_extras([1, 1, 1, 2, 3])",
+        "expected": "[1, 2, 3]"
+      },
+      {
+        "input": "remove_extras([1, 5, 1, 1, 3, 2])",
+        "expected": "[1, 5, 3, 2]"
+      },
+      {
+        "input": "remove_extras([])",
+        "expected": "[]"
+      },
+      {
+        "input": "remove_extras([3, 4, 5, 1, 3])",
+        "expected": "[3, 4, 5, 1]"
+      },
+      {
+        "input": "remove_extras([3, 4, 5, 1, 3])",
+        "expected": "[3, 4, 5, 1]"
+      },
+      {
+        "input": "remove_extras([3, 4, 5, 1, 3])",
+        "expected": "[3, 4, 5, 1]"
+      }
+    ]
+  },
+  {
+    "task_id": "refactory_q4",
+    "name": "Sorting tuples by age",
+    "function": "sort_age",
+    "topic": "sorting",
+    "difficulty": "hard",
+    "description": "Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.",
+    "global_code": "",
+    "tests": [
+      {
+        "input": "sort_age([(\"F\", 19)])",
+        "expected": "[('F', 19)]"
+      },
+      {
+        "input": "sort_age([(\"M\", 35), (\"F\", 18), (\"M\", 23), (\"F\", 19), (\"M\", 30), (\"M\", 17)])",
+        "expected": "[('M', 35), ('M', 30), ('M', 23), ('F', 19), ('F', 18), ('M', 17)]"
+      },
+      {
+        "input": "sort_age([(\"F\", 18), (\"M\", 23), (\"F\", 19), (\"M\", 30), (\"M\", 17)])",
+        "expected": "[('M', 30), ('M', 23), ('F', 19), ('F', 18), ('M', 17)]"
+      },
+      {
+        "input": "sort_age([(\"F\", 18), (\"M\", 23), (\"F\", 19), (\"M\", 30)])",
+        "expected": "[('M', 30), ('M', 23), ('F', 19), ('F', 18)]"
+      },
+      {
+        "input": "sort_age([(\"M\", 23), (\"F\", 19), (\"M\", 30)])",
+        "expected": "[('M', 30), ('M', 23), ('F', 19)]"
+      },
+      {
+        "input": "sort_age([])",
+        "expected": "[]"
+      }
+    ]
+  },
+  {
+    "task_id": "refactory_q5",
+    "name": "Top-k elements",
+    "function": "top_k",
+    "topic": "built-ins",
+    "difficulty": "medium",
+    "description": "Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].",
+    "global_code": "import heapq\n",
+    "tests": [
+      {
+        "input": "top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)",
+        "expected": "[9, 9, 9, 9, 7]"
+      },
+      {
+        "input": "top_k([9, 8, 4, 5, 7, 2, 3, 1, 6], 5)",
+        "expected": "[9, 8, 7, 6, 5]"
+      },
+      {
+        "input": "top_k([4, 5, 2, 3, 1, 6], 6)",
+        "expected": "[6, 5, 4, 3, 2, 1]"
+      },
+      {
+        "input": "top_k([4, 5, 2, 3, 1, 6], 3)",
+        "expected": "[6, 5, 4]"
+      },
+      {
+        "input": "top_k([4, 5, 2, 3, 1, 6], 0)",
+        "expected": "[]"
+      }
+    ]
+  }
+]

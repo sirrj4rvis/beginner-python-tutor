@@ -1,0 +1,98 @@
+[
+ {
+  "id": 13,
+  "bug_type": "logic",
+  "hint_1": "What should the answer be when no birthday at all has that day? Think about whether zero matches can count as unique.",
+  "hint_2": "On line 6 in `unique_day`, the check `counter > 1` only catches days that appear too often, so a count of 0 falls through to `return True`. The same check on line 15 in `unique_month` has this problem too.",
+  "explanation": "Right now `unique_day` only returns False when the day appears more than once. Day \"3\" appears zero times, so the condition is false and the function returns True. A day is unique only when it appears exactly once, so a count of 0 must also give False. When a rule says \"exactly one\", check for both too many and too few.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    counter = 0\n    for possible_birthday in possible_birthdays:\n        if possible_birthday[1] == day:\n            counter += 1\n    if counter != 1:\n        return False\n    return True\n\ndef unique_month(month, possible_birthdays):\n    counter = 0\n    for possible_birthday in possible_birthdays:\n        if possible_birthday[0] == month:\n            counter += 1\n    if counter != 1:\n        return False\n    return True\n\ndef contains_unique_day(month, possible_birthdays):\n    filtered_birthdays = tuple(filter(lambda x: x[0] == month,possible_birthdays))\n    for day in tuple(map(lambda x: x[1], filtered_birthdays)):\n        if unique_day(day, possible_birthdays):\n            return True\n    return False\n"
+ },
+ {
+  "id": 14,
+  "bug_type": "logic",
+  "hint_1": "Which days does your helper actually try? Could a birthday have a day outside the few numbers you check?",
+  "hint_2": "On line 24 in `contains_unique_day`, the helper `generate_unique_days` only tries the days 14 to 19 with `range(14, 20)`, so days like \"1\" or \"2\" are never checked.",
+  "explanation": "The helper builds its list of unique days by testing only the numbers 14 to 19, which fit the example birthdays but not other inputs. In this test the days are \"1\" and \"2\", so they never end up in that list and the function returns False. A function should work for any input it is given, so the days it checks must cover every day that can appear, not just the ones in one example.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    store = 0\n    for i in possible_birthdays:\n        if i[1] == day:\n            if store == 1:\n                return False\n            else:\n                store += 1\n    return store == 1\n\ndef unique_month(month, possible_birthdays):\n    store = 0\n    for i in possible_birthdays:\n        if i[0] == month:\n            if store == 1:\n                return False\n            else:\n                store += 1\n    return store == 1\n\ndef contains_unique_day(month, possible_birthdays):\n    def generate_unique_days(possible_birthdays):\n        generate = ()\n        for i in range(1, 32):\n            if unique_day(str(i), possible_birthdays):\n                generate += (str(i),)\n        return generate\n    for i in possible_birthdays:\n        if i[0] == month:\n            if str(i[1]) in generate_unique_days(possible_birthdays):\n                return True\n    return False\n"
+ },
+ {
+  "id": 15,
+  "bug_type": "logic",
+  "hint_1": "What does a function give back when it ends with a bare return and nothing after it? Each of the three functions needs to work something out and give back True or False.",
+  "hint_2": "In `unique_month`, line 9 is only `return` with no value, so the function always gives back None. It needs a loop that counts how many birthdays have that month, and `contains_unique_day` on line 12 is still empty too.",
+  "explanation": "A bare `return` ends the function and hands back None. The test expects False here, because \"January\" appears twice, but `unique_month` never looks at the birthdays at all. Every function must actually do its work and return a value; here that means counting the birthdays whose month matches and checking whether that count is exactly 1.",
+  "fixed_code": "def unique_day(date, possible_birthdays):\n    count = 0\n    for i in range(len(possible_birthdays)):\n        if date==possible_birthdays[i][1]:\n            count += 1\n    return count == 1\n\ndef unique_month(month, possible_birthdays):\n    count = 0\n    for i in range(len(possible_birthdays)):\n        if month==possible_birthdays[i][0]:\n            count += 1\n    return count == 1\n\ndef contains_unique_day(month, possible_birthdays):\n    for i in range(len(possible_birthdays)):\n        if month==possible_birthdays[i][0]:\n            if unique_day(possible_birthdays[i][1], possible_birthdays):\n                return True\n    return False\n"
+ },
+ {
+  "id": 16,
+  "bug_type": "runtime",
+  "hint_1": "Which tuple should your loop walk through? Check that every name you use has been created before you use it.",
+  "hint_2": "On line 3 in `unique_day`, the loop uses `birthday`, but no variable with that name exists; the birthdays are in the parameter `possible_birthdays`. The loop also reuses `date` as its loop variable, which overwrites the day you were asked to look for.",
+  "explanation": "Python reaches line 3 and looks for a variable called `birthday`, but that name was never created, so it stops with a NameError. Your data is in the parameter `possible_birthdays`, so the loop should go through that tuple one birthday at a time and compare each day with `date`. Remember that a name only exists after you create it, as a parameter, a normal variable or a loop variable.",
+  "fixed_code": "def unique_day(date, possible_birthdays):\n    count=0\n    for birthday in possible_birthdays:\n        if birthday[1]==date:\n            count += 1\n    if count==1:\n        return True\n    else:\n        return False\n\n\ndef unique_month(month, possible_birthdays):\n    count=0\n    for birthday in possible_birthdays:\n        if birthday[0]==month:\n            count += 1\n    if count==1:\n        return True\n    else:\n        return False\n\ndef contains_unique_day(month, possible_birthdays):\n    for birthday in possible_birthdays:\n        if birthday[0]==month and unique_day(birthday[1], possible_birthdays):\n            return True\n    return False\n"
+ },
+ {
+  "id": 17,
+  "bug_type": "runtime",
+  "hint_1": "Is the name you compare with the same as the name the function receives? Check the spelling of the parameter.",
+  "hint_2": "On line 4 in `unique_day` the code compares with `day`, but the parameter on line 1 is called `date`.",
+  "explanation": "The first parameter of `unique_day` is named `date`, so there is no variable called `day` inside this function. When line 4 runs, Python cannot find `day` and stops with a NameError. Inside a function, use exactly the parameter names written in its first line.",
+  "fixed_code": "def unique_day(date, possible_birthdays):\n    tup = ()\n    for i in possible_birthdays:\n        if i[1] == date:\n            tup += (i[1],)\n    if len(tup) == 1:\n        return True\n    elif len(tup) > 1:\n        return False\n    elif len(tup) == 0:\n        return False\n\ndef unique_month(month, possible_birthdays):\n    tup = ()\n    for i in possible_birthdays:\n        if i[0] == month:\n            tup += (i[0],)\n    if len(tup) == 1:\n        return True\n    else:\n        return False\n\ndef contains_unique_day(month, possible_birthdays):\n    tup = ()\n    for date in possible_birthdays:\n        if date[0] == month:\n            tup += (date,)\n    for bday in tup:\n        if unique_day(bday[1], possible_birthdays):\n            return True\n    return False\n"
+ },
+ {
+  "id": 18,
+  "bug_type": "logic",
+  "hint_1": "How many birthdays does your loop look at before it gives an answer? To know if a day is unique, you need to see all of them.",
+  "hint_2": "In `unique_day`, lines 3 to 6 return from inside the loop in both the `if` and the `else`, so only the first birthday is ever checked. Count the matches during the loop and decide only after the loop ends.",
+  "explanation": "A `return` ends the function right away. Because both branches return, the loop stops at the first birthday: \"1\" is in (\"January\",\"1\"), so the function says True without ever seeing that February also has day \"1\". To check that something appears exactly once, count the matches over the whole tuple first, then give the answer after the loop.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    count = 0\n    for x in possible_birthdays:\n        if day in x:\n            count += 1\n    return count == 1\n\ndef unique_month(month, possible_birthdays):\n    count = 0\n    for dates in possible_birthdays:\n        if month in dates:\n            count += 1\n    return count == 1\n\n\ndef contains_unique_day(month, possible_birthdays):\n    for dates in possible_birthdays:\n        if month in dates and unique_day(dates[1], possible_birthdays):\n            return True\n    return False\n"
+ },
+ {
+  "id": 19,
+  "bug_type": "logic",
+  "hint_1": "When the first birthday is not a match, should the function already give up? Think about when you really know the answer is False.",
+  "hint_2": "In `contains_unique_day`, the `else` with `return False` on lines 25 and 26 runs on the very first birthday that does not match, so the loop never reaches the others.",
+  "explanation": "The loop starts with (\"January\",\"10\"), which is not in February, so the `else` branch returns False right away. The February birthday with the unique day \"1\" is never checked. You can only say False after the loop has looked at every birthday, so that return belongs after the loop, not inside it.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    count = 0\n    for i in range(len(possible_birthdays)):\n        if day == possible_birthdays[i][1]:\n            count += 1\n    if count != 1:\n        return False\n    else:\n        return True\n\ndef unique_month(month, possible_birthdays):\n    count = 0\n    for i in range(len(possible_birthdays)):\n        if month == possible_birthdays[i][0]:\n            count += 1\n    if count != 1:\n        return False\n    else:\n        return True\n\ndef contains_unique_day(month, possible_birthdays):\n    for day in possible_birthdays:\n        if unique_day(day[1], possible_birthdays) == True and month == day[0]:\n            return True\n    return False\n"
+ },
+ {
+  "id": 20,
+  "bug_type": "runtime",
+  "hint_1": "Python is picky about capital letters. How are the two truth values spelled in Python?",
+  "hint_2": "On line 7 in `unique_day`, `true` is written with a small t, so Python treats it as an unknown variable name.",
+  "explanation": "Python's truth values are True and False, always with a capital first letter. Written as `true`, Python looks for a variable with that name, finds none, and stops with a NameError. Remember that names in Python are case-sensitive, so `true` and True are different things.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    counter=0\n    for i in possible_birthdays:\n        if i[1]==day:\n            counter=counter+1\n    if counter==1:\n        return True\n    else:\n        return False\n\ndef unique_month(month, possible_birthdays):\n    counter=0\n    for i in possible_birthdays:\n        if i[0]==month:\n            counter=counter+1\n    if counter==1:\n        return True\n    else:\n        return False\n\ndef contains_unique_day(month, possible_birthdays):\n    temp=()\n    for i in possible_birthdays:\n        if i[0]==month:\n            temp=temp+(i,)\n    for i in temp:\n        if unique_day(i[1],possible_birthdays):\n            return True\n    return False\n"
+ },
+ {
+  "id": 21,
+  "bug_type": "runtime",
+  "hint_1": "Does each function use the name of its own parameter? Copying code from one function to another can leave old names behind.",
+  "hint_2": "On line 14 in `unique_month` the code compares `date`, but this function's parameter is called `month`; `date` only exists inside `unique_day`.",
+  "explanation": "Each function has its own variables, so `date` from `unique_day` cannot be seen inside `unique_month`. When line 14 runs, Python cannot find `date` and stops with a NameError. After copying code between functions, update the names to match the parameters of the new function.",
+  "fixed_code": "def unique_day(date, possible_birthdays):\n    tester = 0\n    for i in possible_birthdays:\n        if date == i[1]:\n            if tester:\n                return False\n            else:\n                tester = 1\n    return tester\n\ndef unique_month(month, possible_birthdays):\n    tester = 0\n    for i in possible_birthdays:\n        if month == i[0]:\n            if tester:\n                return False\n            else:\n                tester = 1\n    return tester\n\ndef contains_unique_day(month, possible_birthdays):\n    for i in possible_birthdays:\n        if month == i[0]:\n            if unique_day(i[1], possible_birthdays):\n                return True\n    return False\n"
+ },
+ {
+  "id": 22,
+  "bug_type": "logic",
+  "hint_1": "When the loop finds the one birthday in that month, is that a reason to say it is not unique? Think about how to tell one match apart from two or more.",
+  "hint_2": "In `unique_month`, line 12 sets `checker` to False on any match, even the first one, so a month that appears once still gives False. You need to count the matches instead of switching to False on the first one.",
+  "explanation": "Right now the function gives False as soon as at least one birthday has that month, and True only when none do. \"January\" appears once, which should be unique, but that single match already sets `checker` to False. To test \"exactly one\", count how many birthdays match and then check whether the count is 1. The same idea applies to `unique_day`.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    checker=0\n    for k in possible_birthdays:\n        if k[1]==day:\n          checker+=1\n    return checker==1\n\ndef unique_month(day, possible_birthdays):\n    checker=0\n    for k in possible_birthdays:\n        if k[0]==day:\n          checker+=1\n    return checker==1\n\ndef contains_unique_day(month, possible_birthdays):\n    for k in possible_birthdays:\n        if k[0]==month and unique_day(k[1], possible_birthdays):\n          return True\n    return False\n"
+ },
+ {
+  "id": 23,
+  "bug_type": "runtime",
+  "hint_1": "Is every function you call actually written somewhere in your file? Python only knows about functions that have been created.",
+  "hint_2": "On line 26 in `contains_unique_day`, the code calls `keep_month`, but there is no function with that name in this file.",
+  "explanation": "Python runs line 26 and looks for a function called `keep_month`, but it was never written, so it stops with a NameError. You can either write that helper so it gives back the birthdays from the given month, or do that filtering directly inside `contains_unique_day`. Before calling a helper function, make sure it exists in the same file.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    counter = 0\n    for dates in possible_birthdays:\n        if day == dates[1]:\n            possible_birthdays = possible_birthdays[1:]\n            counter = counter + 1 \n    if counter == 1:\n        return True\n    else:\n        return False \n    return\n\ndef unique_month(month, possible_birthdays):\n    counter = 0\n    for dates in possible_birthdays:\n        if month == dates[0]:\n            possible_birthdays = possible_birthdays[1:]\n            counter = counter + 1 \n    if counter == 1:\n        return True\n    else:\n        return False \n\ndef keep_month(month, possible_birthdays):\n    new_list = ()\n    for dates in possible_birthdays:\n        if month == dates[0]:\n            new_list = new_list + (dates,)\n    return new_list\n\ndef contains_unique_day(month, possible_birthdays):\n    counter = 0\n    new_list = keep_month(month,possible_birthdays)\n    for i in new_list:\n        if unique_day(i[1], possible_birthdays) == True:\n            return True\n\n    return False \n"
+ },
+ {
+  "id": 24,
+  "bug_type": "logic",
+  "hint_1": "To know if a day is unique, which birthdays should you compare it with: only the ones you picked out, or all of them?",
+  "hint_2": "On line 27 in `contains_unique_day`, `unique_day` is called with `month_day`, which holds only the birthdays you picked out, instead of the full `possible_birthdays`.",
+  "explanation": "Here `month_day` holds just (\"January\",\"1\"), so day \"1\" looks unique inside it and the function returns True. But February also has day \"1\" in the full input, so the right answer is False. A day is unique only if no other birthday in the whole input shares it, so the uniqueness check must look at every birthday.",
+  "fixed_code": "def unique_day(day, possible_birthdays):\n    counter = 0\n    for i in possible_birthdays:\n        if day == i[1]:\n            counter = counter + 1\n    if counter == 1:\n        return True\n    else:\n        return False\n\ndef unique_month(month, possible_birthdays):\n    counter = 0\n    for i in possible_birthdays:\n        if month == i[0]:\n            counter = counter + 1\n    if counter == 1:\n        return True\n    else:\n        return False\n\ndef contains_unique_day(month, possible_birthdays):\n    month_day = ()\n    for j in possible_birthdays:\n        if j[0] == month:\n            month_day = month_day + (j,)\n    for t in month_day:\n        if unique_day(t[1], possible_birthdays):\n            return True\n    return False\n"
+ }
+]

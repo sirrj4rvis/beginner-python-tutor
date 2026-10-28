@@ -1,0 +1,6 @@
+# Streamlit settings for this project (read automatically when the app is started from D:\GEN AI).
+[client]
+toolbarMode = "minimal"      # hide the "Deploy" button and developer menu items in the demo
+
+[browser]
+gatherUsageStats = false     # do not send usage statistics to Streamlit

@@ -1,0 +1,86 @@
+% Algorithms 1-3 for the IEEE conference template (IEEEtran).
+% In the preamble add:   \usepackage{algorithm}  \usepackage{algpseudocode}
+% Paste each algorithm where it is first mentioned. The values match METHODOLOGY_NOTES.md.
+
+\begin{algorithm}[t]
+\caption{Dataset preparation and LoRA fine-tuning}
+\label{alg:train}
+\begin{algorithmic}[1]
+\Require wrong attempts $A$; problems $P$ with tests $T_p$ and reference $R_p$; base model $M_0$; seed $s=42$
+\Ensure fine-tuned tutor model $M^{*}$ (GGUF, Q4\_K\_M)
+\State $D \gets \emptyset$
+\ForAll{attempt $a \in A$ of problem $p$}
+    \State $r \gets \textsc{RunSandbox}(a, T_p, \tau = 5\,\text{s})$
+    \If{$r.\mathit{status} \neq \textsc{Pass}$}
+        \State $e \gets \textsc{ErrorMessage}(r)$; \ $b \gets \textsc{AutoBugType}(r)$
+        \State $D \gets D \cup \{(p, a, e, b)\}$
+    \EndIf
+\EndFor
+\State $S \gets \textsc{StratifiedSample}(D, 12 \text{ per problem}, s)$ \Comment{short, no duplicates}
+\ForAll{row $x = (p, a, e, b) \in S$}
+    \State $(h_1, h_2, \mathit{ex}, f) \gets \textsc{LLMDraft}(x)$; authors review and correct
+    \If{$\neg\textsc{Pass}(f, T_p) \lor \neg\textsc{Agree}(f, R_p, 40) \lor \textsc{Leaks}(f; h_1, h_2, \mathit{ex})$}
+        \State fix the row or drop it
+    \EndIf
+\EndFor
+\State $(D_{tr}, D_{val}, D_{te}) \gets \textsc{StratifiedSplit}(S, 40/7/12, s)$
+\State build chat examples; mask the prompt tokens (label $-100$)
+\State $M \gets M_0 + \textsc{LoRA}(r{=}8, \alpha{=}16)$; freeze $M_0$
+\For{$\mathit{epoch} = 1$ \textbf{to} $3$}
+    \ForAll{batch $B \subset D_{tr}$, $|B| = 4$}
+        \State $\theta_{\mathrm{LoRA}} \gets \textsc{AdamW}(\theta_{\mathrm{LoRA}}, \nabla \mathcal{L}(B), \eta = 2\times10^{-4})$
+        \State every 5 steps: keep the checkpoint with the lowest $\mathcal{L}_{val}$
+    \EndFor
+\EndFor
+\State $M^{*} \gets \textsc{Quantize}(\textsc{Merge}(\text{best checkpoint}), \text{Q4\_K\_M})$
+\State \Return $M^{*}$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Guided Feedback loop}
+\label{alg:feedback}
+\begin{algorithmic}[1]
+\Require problem $p$ (tests $T_p$, reference $R_p$); learner code $C$; mastery $m_t$ of topic $t$
+\Ensure highest hint level $h$; explanation $\mathit{ex}$; updated $m_t$
+\State $h \gets 0$
+\Loop
+    \State $r \gets \textsc{RunSandbox}(C, T_p, \tau = 5\,\text{s})$
+    \If{$r.\mathit{status} = \textsc{Pass}$} \textbf{break} \EndIf
+    \State $e \gets \textsc{ErrorMessage}(r)$; show the failing test
+    \If{the learner asks for a hint} \Comment{help only on request}
+        \For{$k = 1$ \textbf{to} $2$} \Comment{at most 2 tries}
+            \State $y \gets \textsc{FineTunedModel}(\mathit{SYSTEM}, p, C, e)$ \Comment{via Ollama}
+            \If{$\textsc{Guardrail}(y, R_p, C) = \textsc{Ok}$} \textbf{break} \EndIf
+        \EndFor
+        \If{$\textsc{Guardrail}(y, R_p, C) \neq \textsc{Ok}$} $y \gets \textsc{TemplateHint}(e)$ \EndIf
+        \State $(b, h_1, h_2, \mathit{ex}) \gets \textsc{Parse}(y)$
+        \State show $h_1$; $h \gets \max(h, 1)$; on request show $h_2$, then $\mathit{ex}$, raising $h$ to 2, then 3
+    \EndIf
+    \If{learner gives up} $c \gets 0$; \textbf{goto} line~\ref{line:update} \EndIf
+    \State $C \gets$ the learner's edited code
+\EndLoop
+\State $c \gets (1.0, 0.75, 0.5, 0.25)[h]$ \Comment{credit for hints used}
+\State $m_t \gets m_t + 0.3\,(c - m_t)$ \label{line:update}
+\State save $(t, p, h, c, m_t)$ to SQLite
+\State \Return $h, \mathit{ex}, m_t$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Next-topic and difficulty selection}
+\label{alg:select}
+\begin{algorithmic}[1]
+\Require topics $T$ in curriculum order; mastery $m_t$ and attempts $n_t$ for each $t \in T$
+\Ensure next topic $t^{*}$ and difficulty $d^{*}$
+\State $U \gets \{t \in T : n_t = 0\}$
+\If{$U \neq \emptyset$}
+    \State $t^{*} \gets$ first topic of $U$ in curriculum order
+\Else
+    \State $W \gets \{t \in T : m_t < 0.8\}$; \textbf{if} $W = \emptyset$ \textbf{then} $W \gets T$
+    \State $t^{*} \gets \arg\min_{t \in W} m_t$ \Comment{ties: earlier topic}
+\EndIf
+\State $d^{*} \gets$ easy if $m_{t^{*}} < 0.4$; medium if $m_{t^{*}} < 0.7$; else hard
+\State \Return $(t^{*}, d^{*})$
+\end{algorithmic}
+\end{algorithm}

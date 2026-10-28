@@ -1,0 +1,98 @@
+[
+ {
+  "id": 37,
+  "bug_type": "logic",
+  "hint_1": "When Python compares two tuples, which part does it look at first? Think about whether that is the part you want to sort by.",
+  "hint_2": "On line 7 the condition compares the whole tuples `i` and `largest`, so the gender letter is checked before the age.",
+  "explanation": "Right now the code compares whole tuples, and Python compares tuples item by item, starting with the first one. The first item is the gender, and 'M' comes after 'F', so every man counts as \"bigger\" than every woman, whatever the age. That is why all the M tuples come first, even ('M', 17). When you sort by one part of a tuple, compare only that part, here the age at index 1.",
+  "fixed_code": "def sort_age(lst):\n    old_lst = lst\n    new_lst = []\n    while old_lst:\n        largest = old_lst[0]\n        for i in lst:\n            if i[1] > largest[1]:\n                largest = i\n        old_lst.remove(largest)\n        new_lst.append(largest)\n    return new_lst\n"
+ },
+ {
+  "id": 38,
+  "bug_type": "logic",
+  "hint_1": "Is the list method at the end actually being run? Think about what is needed to call a method, and what that method gives back.",
+  "hint_2": "On line 10 `sorted_lst.reverse` has no brackets, so the method is never called and the method itself is returned. Also, `reverse` changes the list in place and gives back None.",
+  "explanation": "Without brackets, `sorted_lst.reverse` is just the name of the method, so the function returns the method object instead of a list. That is why the output shows 'built-in method reverse'. A method only runs when you add brackets after it. Also remember that reverse changes the list itself and returns None, so reverse the list first and then return the list.",
+  "fixed_code": "def sort_age(lst):\n    sorted_lst = []\n    while lst:\n        smallest = lst[0]\n        for i in lst:\n            if i[1] < smallest[1]:\n                smallest = i\n        lst.remove(smallest)\n        sorted_lst.append(smallest)\n    sorted_lst.reverse()\n    return sorted_lst\n"
+ },
+ {
+  "id": 39,
+  "bug_type": "runtime",
+  "hint_1": "Check the spelling of the names you use. Do they match the name of the list your function was given?",
+  "hint_2": "On line 3 the loop uses `lsst`, but the parameter is called `lst`. Lines 4, 5 and 8 also use `a`, which was never created.",
+  "explanation": "Python only knows the names you have created, like the parameter `lst`. The name `lsst` is a typo, so Python stops with a NameError as soon as it reaches line 3. Lines 4, 5 and 8 have the same problem with `a`. Once the names are fixed, also check that the loop compares only the ages and updates `biggest`, not a different variable.",
+  "fixed_code": "def sort_age(lst):\n    sort = []\n    while lst:\n        biggest = lst[0]\n        for element in lst:\n            if element[1] > biggest[1]:\n                biggest = element\n        lst.remove(biggest)\n        sort.append(biggest)\n    return sort\n"
+ },
+ {
+  "id": 40,
+  "bug_type": "logic",
+  "hint_1": "Where does the first tuple go if the list has only one item? And does each step add a tuple to your result, or replace the whole result?",
+  "hint_2": "`result` starts empty on line 4, and the loop on line 5 skips the first tuple, so with one item nothing is ever added. Inside the loop, lines 7 and 9 also replace `result` with a new pair each time instead of adding to it.",
+  "explanation": "With one tuple, `lst[1:]` is empty, so the loop never runs and the empty `result` is returned. With more tuples, each pass throws away the old `result` and keeps only a pair of two tuples. To build a sorted list, start the result with the first tuple and then put each new tuple into its right place, keeping what is already there. Also think about the empty list, where there is no first tuple at all.",
+  "fixed_code": "def sort_age(lst):\n    if lst == []:\n        return []\n    first = lst[0]\n    firstnum = lst[0][1]\n    result = [first]\n    for x in lst[1:]:\n        pos = 0\n        while pos < len(result) and result[pos][1] > x[1]:\n            pos = pos + 1\n        result.insert(pos, x)\n    return result\n    pass\n"
+ },
+ {
+  "id": 41,
+  "bug_type": "logic",
+  "hint_1": "Once you have put a tuple into its place, should your code keep looking for more places to put it?",
+  "hint_2": "Look at the inner loop on lines 5 to 11: after an `insert`, the loop keeps going, so the same `i` can be inserted again on the next steps. Line 8 also compares with `new_lst[j]` and uses `insert(-1, i)`, which does not put the tuple at the end.",
+  "explanation": "Right now, after a tuple is inserted, the inner loop moves on to the next position and can insert the same tuple again. That is why the result has many copies of ('M', 30) and ('M', 17). Each tuple should be placed exactly once, so the inner loop must stop as soon as it inserts. Also, inserting at -1 puts an item before the last one, not after it, and an empty list has no first tuple to start with.",
+  "fixed_code": "def sort_age(lst):\n    if lst == []:\n        return []\n    new_lst=[]\n    new_lst.append(lst[0])\n    for i in lst[1:]:\n        for j in range(len(new_lst)):\n            if i[1]>new_lst[j][1] and j==0:\n                new_lst.insert(0,i)\n                break\n            elif i[1]<new_lst[-1][1]:\n                new_lst.append(i)\n                break\n            elif i[1]>new_lst[j][1]:\n                new_lst.insert(j,i)\n                break\n    return new_lst\n"
+ },
+ {
+  "id": 42,
+  "bug_type": "runtime",
+  "hint_1": "Can you change one item inside a tuple? Think about what you really want to move around in the list.",
+  "hint_2": "On line 5 the swap tries to change `lst[j][1]`, the age inside a tuple, but tuples cannot be changed. Also check that `j+1` on line 4 never goes past the end of the list.",
+  "explanation": "Tuples are fixed once they are made, so Python does not let you assign a new value to one of their items. Line 5 tries to do that with the ages, which causes the TypeError. Swapping only the ages would also split each age from its gender. Swap the whole tuples in the list instead, and make the inner loop stop one step earlier so `j+1` is always a real position.",
+  "fixed_code": "def sort_age(lst):\n    for i in range(len(lst)-1):\n        for j in range(len(lst)-i-1):\n            if lst[j][1] < lst[j+1][1]:\n                lst[j],lst[j+1] = lst[j+1],lst[j]\n            else:\n                continue\n    return lst\n    pass\n"
+ },
+ {
+  "id": 43,
+  "bug_type": "runtime",
+  "hint_1": "What kind of value is the oldest item you found, a list or a single tuple? Can you join those two kinds with a plus sign?",
+  "hint_2": "On line 10 `holder` is one tuple, but `sort_age(lst[1:])` gives back a list, so the plus cannot join them. Also, `lst[1:]` drops the first tuple, not the oldest one you found.",
+  "explanation": "After the loop, `holder` holds a single tuple like ('F', 19), while the recursive call returns a list. Python can only join a tuple to a tuple or a list to a list, so it stops with a TypeError. Put the oldest tuple inside a list before joining. Then make sure the recursive call gets the list without that oldest tuple, not just without the first one.",
+  "fixed_code": "def sort_age(lst):\n    holder=[]\n    if lst==[]:\n        return []\n    for x in lst:\n        if holder==[]:\n            holder=x\n        elif x[1]>holder[1]:\n            holder=x\n    lst.remove(holder)\n    return [holder]+sort_age(lst)\n"
+ },
+ {
+  "id": 44,
+  "bug_type": "runtime",
+  "hint_1": "What are you trying to remove from the list, a whole tuple or only an age? Which of those is actually inside your list?",
+  "hint_2": "On line 10 `lst.remove(biggest)` looks for the age number, but the list holds tuples, so it is not found. Keep track of the whole tuple (you already have `b` for this), and check that the loop on line 6 reaches the last item too.",
+  "explanation": "`biggest` holds just the age, like 19, but `lst` contains tuples like ('F', 19). The number 19 is not an item of the list, so remove cannot find it and raises a ValueError. To remove and save the oldest person, keep the whole tuple, not only its age. Also, the range on line 6 stops one item too early, so the last tuple is never checked.",
+  "fixed_code": "def sort_age(lst):\n    list1 = []\n    while lst:\n        biggest = lst[0][1]\n        b = lst[0]\n        for i in range(1,len(lst)):\n            if lst[i][1] > biggest:\n                biggest = lst[i][1]\n                b = lst[i]\n        lst.remove(b)\n        list1.append(b)\n    return list1\n"
+ },
+ {
+  "id": 45,
+  "bug_type": "runtime",
+  "hint_1": "Which list should your inner loop go through? Make sure every name you use was created first.",
+  "hint_2": "On line 5 the loop goes over `a`, but there is no `a` in this function; your list is called `lst`. After that, check the indentation of lines 8 and 9 and what the function returns at the end.",
+  "explanation": "Python stops with a NameError because `a` was never given a value, so it does not know what to loop over. The list you were given is called `lst`. Once that is fixed, lines 8 and 9 sit inside the for loop, so items get removed while the loop is still looking, and the function ends with pass, so it returns None. Remove the smallest only after the loop has checked every tuple, return your list, and remember the task wants the oldest first.",
+  "fixed_code": "def sort_age(lst):\n    sort = []\n    while lst:\n        smallest = lst[0]\n        for element in lst:\n            if element[1] < smallest[1]:\n                smallest = element\n        lst.remove(smallest)\n        sort.append(smallest)\n\n    return sort[::-1]\n"
+ },
+ {
+  "id": 46,
+  "bug_type": "runtime",
+  "hint_1": "Your function calls itself on a shorter list each time. What happens when the list becomes empty?",
+  "hint_2": "Line 2 reads `lst[0]` right away, but there is no check for an empty list, and the call on line 9 always ends up with an empty list. Also, `biggest` only holds an age, and `lst[1:len(lst)]` drops the first tuple, not the oldest one.",
+  "explanation": "Each call removes one item and calls the function again, so sooner or later it gets an empty list. Then line 2 asks for the first item of an empty list, which does not exist, so Python raises an IndexError. A function that calls itself always needs a stopping case for the smallest input, here the empty list. After that, make sure each step keeps the oldest whole tuple and removes that tuple from the list.",
+  "fixed_code": "def sort_age(lst):\n    if lst == []:\n        return []\n    biggest = lst[0]\n    for i in range(len(lst)):\n        if biggest[1]<lst[i][1]:\n            biggest = lst[i]\n            continue\n    lst.remove(biggest)\n    return [(biggest),] + sort_age(lst)\n    pass\n"
+ },
+ {
+  "id": 47,
+  "bug_type": "logic",
+  "hint_1": "Does anything inside your while loop make the list shorter? If the list never shrinks, when will the loop stop?",
+  "hint_2": "Lines 9 and 10 are indented at the same level as `while`, so they run only after the loop, which never happens. The `while a:` loop only contains the for loop, so `a` never changes.",
+  "explanation": "Python uses indentation to decide which lines belong to a loop. Here only the for loop is inside the while loop, so nothing is removed from `a`, it stays non-empty, and the loop runs forever. That is why the test timed out. Any line that should run in every round of a loop must be indented inside it, and remember the task wants the oldest person first.",
+  "fixed_code": "def sort_age(lst):\n    a=lst\n    sort=[]\n    while a:\n        smallest=a[0]\n        for element in a:\n            if element[1]<smallest[1]:\n                smallest=element\n        a.remove(smallest)\n        sort.append(smallest)\n    return sort[::-1]\n"
+ },
+ {
+  "id": 48,
+  "bug_type": "runtime",
+  "hint_1": "What happens with an empty list? Is there a first item to start your result with?",
+  "hint_2": "Line 2 reads `lst[0]` straight away, so when `lst` is empty there is nothing at position 0. Handle the empty list before this line.",
+  "explanation": "Line 2 builds the result from the first item of the list. When the list is empty, there is no item at index 0 (the first position), so Python raises an IndexError. The rest of your sorting works, it just needs a starting item. Always think about the empty input first and return the right answer for it before reading any items.",
+  "fixed_code": "def sort_age(lst):\n    if lst == []:\n        return []\n    result = [lst[0]]\n    for i in lst[1:]:\n        if i[1] > result[0][1]:\n            result.insert(0, i)\n        elif i[1] < result[-1][1]:\n            result.append(i)\n        else:\n            for j in range(len(result) - 1):\n                if i[1] < result[j][1] and i[1] > result[j+1][1]:\n                    result.insert(j+1, i)\n    return result\n"
+ }
+]

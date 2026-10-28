@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Files the app creates while running (SQLite progress DB, ChromaDB store)
+app/data/
+
+# Too big for GitHub (100 MB file limit). Keep them on Drive or share separately.
+model/*.gguf
+training_outputs/merged_16bit/
+*.zip
+
+# Browser-test leftovers
+.playwright-mcp/
+
+# Our own working notes (kept on the laptop, not published)
+CLAUDE.md
+prompts.md
+.claude/

@@ -1,0 +1,9 @@
+# Packages for the Streamlit app. Install with:
+#   python -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+# Versions are the ones tested on Windows 11 with Python 3.14.5 (28 Oct 2026).
+streamlit==1.66.1      # the web page (UI)
+python-dotenv==1.2.4   # reads the Gemini key from the .env file
+google-genai==2.33.0   # Google's official Gemini library (Concept Explanation, Practice Generation)
+chromadb==1.5.9        # local vector database for RAG (Concept Explanation)
+streamlit-code-editor==0.1.22  # code box with Tab indentation and line numbers

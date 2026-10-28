@@ -1,0 +1,12 @@
+category,value,rows
+topic,built-ins,12
+topic,functions,12
+topic,loops,12
+topic,sorting,12
+topic,lists,11
+difficulty,easy,23
+difficulty,medium,24
+difficulty,hard,12
+bug_type,syntax,0
+bug_type,runtime,31
+bug_type,logic,28

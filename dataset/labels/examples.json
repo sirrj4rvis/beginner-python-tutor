@@ -1,0 +1,18 @@
+[
+  {
+    "id": 25,
+    "bug_type": "runtime",
+    "hint_1": "Which list is your loop really going through? Make sure it walks over the list that was given to the function.",
+    "hint_2": "On line 3 the loop uses `list`, which is Python's built-in list type, not your parameter `lst`.",
+    "explanation": "In Python, `list` is the name of the built-in list type, so the loop tries to go through the type itself instead of your data. That is why Python says a 'type' object is not iterable. Your input is called `lst`, so the loop has to use that name. Always loop over the parameter you were given, and avoid naming your own variables after built-ins like list, str or max.",
+    "fixed_code": "def remove_extras(lst):\n    new_list = []\n    for item in lst:\n        if new_list.count(item) == 0:\n            new_list.append(item)\n    return new_list\n"
+  },
+  {
+    "id": 26,
+    "bug_type": "logic",
+    "hint_1": "Think about what count gives for an item you took from that very same list. Can it ever be less than 1?",
+    "hint_2": "On line 4 you count `x` inside `lst`, the input list, which always contains `x`. Check the list you are building, `lst2`, instead.",
+    "explanation": "Every `x` comes from `lst`, so counting it in `lst` always gives at least 1, and the condition is never true. That is why nothing is added and an empty list comes back. To keep only the first copy of each item, check the list you are building, because it only holds the items you have already kept.",
+    "fixed_code": "def remove_extras(lst):\n    lst2 = []\n    for x in lst:\n        if lst2.count(x) < 1:\n            lst2.append(x)\n    return lst2\n"
+  }
+]

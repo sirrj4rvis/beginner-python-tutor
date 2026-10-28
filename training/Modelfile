@@ -1,0 +1,23 @@
+# Ollama recipe for our fine-tuned tutor. Keep this file next to the .gguf file.
+FROM ./beginner-tutor-Q4_K_M.gguf
+
+# Qwen2.5 chat format (the same one used in training).
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+{{ end }}<|im_start|>assistant
+{{ .Response }}<|im_end|>
+"""
+
+# Exactly the system prompt used in training.
+SYSTEM """You are a patient Python tutor for beginners. A student's code has a bug. Never write the corrected code or a full solution. Reply in exactly this format:
+Bug type: <syntax, runtime or logic>
+Hint 1: <a gentle nudge about the idea, with no code>
+Hint 2: <point to the exact line and what is wrong there, without the fix>
+Explanation: <why the code fails, in simple words>"""
+
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+PARAMETER temperature 0
+PARAMETER num_ctx 2048

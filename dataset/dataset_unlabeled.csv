@@ -1,0 +1,898 @@
+id,task_id,topic,difficulty,problem,student_code,error_message,bug_type,hint_1,hint_2,explanation,fixed_code,source_file
+1,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    a = list(enumerate(seq))
+    seq = list(seq)
+    i = 0
+    while i < len(seq):
+        if seq == []:
+            return 0
+        if x < seq[i] and i == 0:
+            return 0
+        elif x <= a[i][1] and x >= a[i-1][1]:
+            return a[i][0]
+        elif x > a[len(seq)-1][1]:
+            return len(seq)
+        else:
+            i = i + 1
+            
+            
+    return seq
+    
+","Test: search(100, [])
+Expected: 0
+Got: []",logic,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_256.py
+2,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    """""" Takes in a value x and a sorted sequence seq, and returns the
+    position that x should go to such that the sequence remains sorted """"""
+    counter = -1
+    for i in seq:
+        if len(seq) == 0:
+            return 0
+        if x <= i:
+            counter += 1
+            return counter
+        elif x > i:
+            counter += 1
+        else:
+            counter += 1
+    if x > seq[counter]:
+        return counter + 1
+","Test: search(100, [])
+IndexError: list index out of range (line 15)",runtime,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_525.py
+3,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    for i in range(len(seq)-1):
+        if x > seq[i] and x <= seq[i+1]:
+            return i+1
+    return None
+","Test: search(42, (-5, 1, 3, 5, 7, 10))
+Expected: 6
+Got: None",logic,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_105.py
+4,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    
+    for i in range(len(seq)):
+        if x<=seq[i]:
+            return i
+        elif x>=seq[len(seq)-1]:
+            return len(seq)
+        else:
+            continue 
+","Test: search(10, (-5, -1, 3, 5, 7, 10))
+Expected: 5
+Got: 6",logic,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_028.py
+5,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    for i in range(len(seq)):
+        if x < seq[i]:
+            return i
+        elif seq[i] == seq[-1] and seq[i]<x:
+            return i+1
+        elif seq[i]<x<=seq[i+1]:
+            return i
+    return len(seq)+1     
+        
+","Test: search(5, (1, 5, 10))
+Expected: 1
+Got: 0",logic,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_045.py
+6,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    for i in range(len(seq)):
+        if x<=seq[i]:break
+        if i==len(seq)-1: i+=1
+    return i
+","Test: search(100, [])
+UnboundLocalError: cannot access local variable 'i' where it is not associated with a value (line 5)",runtime,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_165.py
+7,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    if x<seq[0]:
+        return 0
+    elif x>seq[-1]:
+        return len(seq)
+    elif seq is ():
+        return 0
+    else:
+        for i in range(len(seq)-1):
+            if x>seq[i] and x<seq[i+1]:
+                return i+1
+            elif x==seq[i]:
+                return i
+","Test: search(10, (-5, -1, 3, 5, 7, 10))
+Expected: 5
+Got: None","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_1/code/wrong/wrong_1_287.py
+8,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    #Takes in a value x and a sorted sequence seq, and returns the
+    #position that x should go to such that the sequence remains sorted 
+            
+    for i, x in enumerate(seq):
+        if x < seq[i]:
+            return i
+    return i
+","Test: search(42, (-5, 1, 3, 5, 7, 10))
+Expected: 6
+Got: 5","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_1/code/wrong/wrong_1_350.py
+9,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    if seq == ():
+        return 'not found'
+    for i, elem in enumerate(seq):
+        if x <= elem:
+            return i
+    return i+1
+","Test: search(100, [])
+UnboundLocalError: cannot access local variable 'i' where it is not associated with a value (line 7)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_1/code/wrong/wrong_1_552.py
+10,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    if x < seq[0]:
+        return 0
+    elif x > seq[-1]:
+        return len(seq)
+    for i, elem in enumerate(seq):
+            if x < elem:
+                return i 
+","Test: search(5, (1, 5, 10))
+Expected: 1
+Got: 2","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_1/code/wrong/wrong_1_017.py
+11,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    for i in len(seq):
+        if seq[i] < x:
+            continue
+        else:
+            return i-1
+    """""" Takes in a value x and a sorted sequence seq, and returns the
+    position that x should go to such that the sequence remains sorted """"""
+","Test: search(42, (-5, 1, 3, 5, 7, 10))
+TypeError: 'int' object is not iterable (line 2)",runtime,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_374.py
+12,refactory_q1,loops,easy,"Write a function search(x, seq) that takes a value x and a sorted list or tuple seq. Return the index where x should be inserted to keep seq sorted: the position of the first element that is greater than or equal to x, or len(seq) if x is larger than every element. An empty seq returns 0.","def search(x, seq):
+    lst1 = list(seq)
+    if lst1 == []:
+        i = 0
+    else: 
+        length = len(lst1)
+        lst2 = []
+        if x < seq[0]:
+            lst2 = [x] + lst1
+        elif x > seq[length -1]:
+            lst2 = lst1 + [x]
+        else:
+            for i in range(0, length):
+                if seq[i] <= x <= seq[i+1]:
+                    lst2 = lst1[:i+1] + [x] + lst1[i+1:]
+    for i in range(len(lst2)):
+        if x == lst2[i]:
+            return i
+","Test: search(10, (-5, -1, 3, 5, 7, 10))
+IndexError: tuple index out of range (line 14)",runtime,,,,,raw/refactory/data/question_1/code/wrong/wrong_1_377.py
+13,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    counter = 0
+    for possible_birthday in possible_birthdays:
+        if possible_birthday[1] == day:
+            counter += 1
+    if counter > 1:
+        return False
+    return True
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for possible_birthday in possible_birthdays:
+        if possible_birthday[0] == month:
+            counter += 1
+    if counter > 1:
+        return False
+    return True
+
+def contains_unique_day(month, possible_birthdays):
+    filtered_birthdays = tuple(filter(lambda x: x[0] == month,possible_birthdays))
+    for day in tuple(map(lambda x: x[1], filtered_birthdays)):
+        if unique_day(day, possible_birthdays):
+            return True
+    return False
+","Test: unique_day(""3"", ((""January"",""1""),(""January"",""2"")))
+Expected: False
+Got: True",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_265.py
+14,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    store = 0
+    for i in possible_birthdays:
+        if i[1] == day:
+            if store == 1:
+                return False
+            else:
+                store += 1
+    return True
+
+def unique_month(month, possible_birthdays):
+    store = 0
+    for i in possible_birthdays:
+        if i[0] == month:
+            if store == 1:
+                return False
+            else:
+                store += 1
+    return True
+
+def contains_unique_day(month, possible_birthdays):
+    def generate_unique_days(possible_birthdays):
+        generate = ()
+        for i in range(14, 20):
+            if unique_day(str(i), possible_birthdays):
+                generate += (str(i),)
+        return generate
+    for i in possible_birthdays:
+        if i[0] == month:
+            if str(i[1]) in generate_unique_days(possible_birthdays):
+                return True
+    return False
+","Test: contains_unique_day(""January"", ((""January"",""1""),(""January"",""2"")))
+Expected: True
+Got: False",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_400.py
+15,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(date, possible_birthdays):
+    for i in range(len(possible_birthdays)):
+        if date==possible_birthdays[i]:
+            return True
+        else:
+            return False
+
+def unique_month(month, possible_birthdays):
+    return
+
+def contains_unique_day(month, possible_birthdays):
+    return 
+","Test: unique_month(""January"", ((""January"",""1""),(""January"",""2"")))
+Expected: False
+Got: None",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_418.py
+16,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(date, possible_birthdays):
+    count=0
+    for date in birthday[(len(possible_birthdays))-1][1]:
+        count += 1
+        possible_birthday=possible_birthday[:(len(possible_birthdays))-1]
+    if count==1:
+        return True
+    else:
+        return False
+    
+
+def unique_month(month, possible_birthdays):
+    return
+
+def contains_unique_day(month, possible_birthdays):
+    return 
+","Test: unique_day(""1"", ((""January"",""1""),(""February"",""1"")))
+NameError: name 'birthday' is not defined (line 3)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_2/code/wrong/wrong_2_307.py
+17,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(date, possible_birthdays):
+    tup = ()
+    for i in possible_birthdays:
+        if i[1] == day:
+            tup += (i[1],)
+    if len(tup) == 1:
+        return True
+    elif len(tup) > 1:
+        return False
+    elif len(tup) == 0:
+        return None
+
+def unique_month(month, possible_birthdays):
+    tup = ()
+    for i in possible_birthdays:
+        if i[0] == month:
+            tup += (i[0],)
+    if len(tup) == 1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    tup = ()
+    for date in possible_birthdays:
+        if date[0] == month:
+            tup += (date,)
+    for bday in tup:
+        if unique_day(bday[1], possible_birthdays):
+            return True
+    return False
+","Test: unique_day(""1"", ((""January"",""1""),(""February"",""1"")))
+NameError: name 'day' is not defined (line 4)",runtime,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_038.py
+18,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    for x in possible_birthdays:
+        if day in x:
+            return True
+        else:
+            return False
+
+def unique_month(month, possible_birthdays):
+    for dates in possible_birthdays:
+        if month in dates:
+            return False
+        else:
+            return True
+
+
+def contains_unique_day(month, possible_birthdays):
+    return 
+","Test: unique_day(""1"", ((""January"",""1""),(""February"",""1"")))
+Expected: False
+Got: True",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_413.py
+19,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if day == possible_birthdays[i][1]:
+            count += 1
+    if count > 1:
+        return False
+    else:
+        return True
+
+def unique_month(month, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if month == possible_birthdays[i][0]:
+            count += 1
+    if count > 1:
+        return False
+    else:
+        return True
+
+def contains_unique_day(month, possible_birthdays):
+    for day in possible_birthdays:
+        if unique_day(day[1], possible_birthdays) == True and month == day[0]:
+            return True
+        else:
+            return False
+","Test: contains_unique_day(""February"", ((""January"",""10""),(""February"",""1""),(""February"",""10"")))
+Expected: True
+Got: False",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_278.py
+20,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    counter=0
+    for i in possible_birthdays:
+        if i[1]==day:
+            counter=counter+1
+    if counter<=1:
+        return true
+    else:
+        return False
+
+def unique_month(month, possible_birthdays):
+    counter=0
+    for i in possible_birthdays:
+        if i[0]==month:
+            counter=counter+1
+    if counter<=1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    temp=()
+    for i in possible_birthdays:
+        if i[0]==month:
+            temp=temp+(i,)
+    for i in temp:
+        if unique_day(i[1],possible_birthdays):
+            return True
+    return False
+","Test: contains_unique_day(""January"", ((""January"",""1""),(""January"",""2"")))
+NameError: name 'true' is not defined (line 7)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_2/code/wrong/wrong_2_206.py
+21,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(date, possible_birthdays):
+    tester = 0
+    for i in possible_birthdays:
+        if date == i[1]:
+            if tester:
+                return False
+            else:
+                tester = 1
+    return tester
+
+def unique_month(month, possible_birthdays):
+    tester = 0
+    for i in possible_birthdays:
+        if date == i[0]:
+            if tester:
+                return False
+            else:
+                tester = 1
+    return tester
+
+def contains_unique_day(month, possible_birthdays):
+    return 
+","Test: unique_month(""January"", ((""January"",""1""),(""January"",""2"")))
+NameError: name 'date' is not defined (line 14)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_2/code/wrong/wrong_2_124.py
+22,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    checker=True
+    for k in possible_birthdays:
+        if k[1]==day:
+          checker=False
+    return checker
+
+def unique_month(day, possible_birthdays):
+    checker=True
+    for k in possible_birthdays:
+        if k[0]==day:
+          checker=False
+    return checker
+    
+def contains_unique_day(month, possible_birthdays):
+    return 
+","Test: unique_month(""January"", ((""January"",""1""),(""February"",""1"")))
+Expected: True
+Got: False",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_198.py
+23,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    counter = 0
+    for dates in possible_birthdays:
+        if day == dates[1]:
+            possible_birthdays = possible_birthdays[1:]
+            counter = counter + 1 
+    if counter == 1:
+        return True
+    else:
+        return False 
+    return
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for dates in possible_birthdays:
+        if month == dates[0]:
+            possible_birthdays = possible_birthdays[1:]
+            counter = counter + 1 
+    if counter == 1:
+        return True
+    else:
+        return False 
+
+def contains_unique_day(month, possible_birthdays):
+    counter = 0
+    new_list = keep_month(month,possible_birthdays)
+    for i in new_list:
+        if unique_day(i[1], possible_birthdays) == True:
+            return True
+
+    return False 
+","Test: contains_unique_day(""January"", ((""January"",""1""),(""January"",""2"")))
+NameError: name 'keep_month' is not defined (line 26)",runtime,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_092.py
+24,refactory_q2,functions,medium,"Birthdays are given as a tuple of (month, day) string pairs, e.g. (('May', '15'), ('June', '17')). Write three functions: unique_day(day, possible_birthdays) returns True if exactly one birthday has that day; unique_month(month, possible_birthdays) returns True if exactly one birthday has that month; contains_unique_day(month, possible_birthdays) returns True if that month has at least one birthday whose day is unique.","def unique_day(day, possible_birthdays):
+    counter = 0
+    for i in possible_birthdays:
+        if day == i[1]:
+            counter = counter + 1
+    if counter == 1:
+        return True
+    else:
+        return False
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for i in possible_birthdays:
+        if month == i[0]:
+            counter = counter + 1
+    if counter == 1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    month_day = ()
+    for j in possible_birthdays:
+        if j == possible_birthdays[0]:
+            month_day = month_day + (j,)
+    for t in month_day:
+        return unique_day(t[1], month_day)
+","Test: contains_unique_day(""January"", ((""January"",""1""),(""February"",""1"")))
+Expected: False
+Got: True",logic,,,,,raw/refactory/data/question_2/code/wrong/wrong_2_320.py
+25,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    new_list = []
+    for item in list:
+        if new_list.count(item) == 0:
+            new_list.append(item)
+    return new_list
+","Test: remove_extras([1, 1, 1, 2, 3])
+TypeError: 'type' object is not iterable (line 3)",runtime,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_136.py
+26,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    lst2 = []
+    for x in lst:
+        if lst.count(x) < 1:
+            lst2.append(x)
+    return lst2
+","Test: remove_extras([1, 1, 1, 2, 3])
+Expected: [1, 2, 3]
+Got: []",logic,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_285.py
+27,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    if lst == []:
+        return []
+    elif lst[0] not in lst[1:]:
+        return [lst[0],] + remove_extras(lst[1:])
+    else:
+        return remove_extras(lst[1:])
+            
+","Test: remove_extras([1, 5, 1, 1, 3, 2])
+Expected: [1, 5, 3, 2]
+Got: [5, 1, 3, 2]",logic,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_085.py
+28,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    new_list = []
+    for elem in lst:
+        if elem not in new_list:
+            new_list += new.append(elem)
+    return new_list 
+","Test: remove_extras([1, 1, 1, 2, 3])
+NameError: name 'new' is not defined (line 5)",runtime,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_210.py
+29,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    seq = (lst[0],)
+    for i in lst:
+        if i not in seq:
+            seq = seq + (lst[i],)
+    return seq
+    pass
+","Test: remove_extras([1, 1, 1, 2, 3])
+Expected: [1, 2, 3]
+Got: (1, 1, 2)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_3/code/wrong/wrong_3_120.py
+30,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    new_list=[lst[0]]
+    for i in lst:
+        if i in new_list:
+            continue
+        else:
+            new_list.append(i)
+    return new_list
+","Test: remove_extras([])
+IndexError: list index out of range (line 2)",runtime,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_244.py
+31,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    l=len(lst)
+    for i in range(l):
+        for j in range(i+1,l):
+            if lst[i]==lst[j]:
+                del lst[j]
+    return lst
+
+","Test: remove_extras([1, 1, 1, 2, 3])
+IndexError: list index out of range (line 5)",runtime,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_238.py
+32,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    new = []
+    x = 0
+    while x < len(lst)+1:
+        if lst[x] in new:
+            new += lst[x]
+        else:
+            continue
+    return new
+",Timed out after 5 seconds (the code may have an infinite loop),"FLAG: timeout: probably an infinite loop (logic), but check",,,,,raw/refactory/data/question_3/code/wrong/wrong_3_296.py
+33,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    new_list = ()
+    for x in lst:
+        if x not in new_list:
+            new_list += ((x))
+    return new_list
+","Test: remove_extras([1, 1, 1, 2, 3])
+TypeError: can only concatenate tuple (not ""int"") to tuple (line 5)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_3/code/wrong/wrong_3_281.py
+34,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    new_list = []
+    for item in lst:
+        if item not in new_list:
+            new_list.append.item
+    return new_list
+","Test: remove_extras([1, 1, 1, 2, 3])
+AttributeError: 'builtin_function_or_method' object has no attribute 'item' (line 5)",runtime,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_194.py
+35,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    for i in range(0, len(lst)-1):
+        num = lst[i]
+        if lst.count(num) > 1:
+            lst.pop(i)
+    return lst
+","Test: remove_extras([1, 1, 1, 2, 3])
+IndexError: list index out of range (line 3)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_3/code/wrong/wrong_3_225.py
+36,refactory_q3,lists,easy,"Write a function remove_extras(lst) that returns a new list with duplicate elements removed, keeping only the first occurrence of each element and the original order.","def remove_extras(lst):
+    sub_list = []
+    for elem in lst:
+        if elem not in lst[lst.index(elem)+1:]:
+            return lst
+        elif elem in lst[lst.index(elem)+1:]:
+            sub_list += lst[lst.index(elem)+1:]
+            while elem in sub_list:
+                sub_list.remove(elem)               
+            return lst[:lst.index(elem)+1] + sub_list
+","Test: remove_extras([])
+Expected: []
+Got: None",logic,,,,,raw/refactory/data/question_3/code/wrong/wrong_3_093.py
+37,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    old_lst = lst
+    new_lst = []
+    while old_lst:
+        largest = old_lst[0]
+        for i in lst:
+            if i > largest:
+                largest = i
+        old_lst.remove(largest)
+        new_lst.append(largest)
+    return new_lst
+","Test: sort_age([(""M"", 35), (""F"", 18), (""M"", 23), (""F"", 19), (""M"", 30), (""M"", 17)])
+Expected: [('M', 35), ('M', 30), ('M', 23), ('F', 19), ('F', 18), ('M', 17)]
+Got: [('M', 35), ('M', 30), ('M', 23), ('M', 17), ('F', 19), ('F', 18)]",logic,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_012.py
+38,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    sorted_lst = []
+    while lst:
+        smallest = lst[0]
+        for i in lst:
+            if i[1] < smallest[1]:
+                smallest = i
+        lst.remove(smallest)
+        sorted_lst.append(smallest)
+    return sorted_lst.reverse
+","Test: sort_age([(""F"", 19)])
+Expected: [('F', 19)]
+Got: <built-in method reverse of list object at 0x000001E652F0A280>",logic,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_170.py
+39,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    sort = []
+    while lsst: 
+        biggest = a[0]
+        for element in a:
+            if element > biggest:
+                smallest = element
+        a.remove(biggest)
+        sort.append(biggest)
+    return sort
+","Test: sort_age([(""F"", 19)])
+NameError: name 'lsst' is not defined (line 3)",runtime,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_023.py
+40,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    first = lst[0]
+    firstnum = lst[0][1]
+    result = []
+    for x in lst[1:]:
+        if x[1] > firstnum:
+            result = (first,) + (x,)
+        else:
+            result = (x,) + (first,)
+    return result
+    pass
+","Test: sort_age([(""F"", 19)])
+Expected: [('F', 19)]
+Got: []","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_4/code/wrong/wrong_4_121.py
+41,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    new_lst=[]
+    new_lst.append(lst[0])
+    for i in lst[1:]:
+        for j in range(len(new_lst)):
+            if i[1]>new_lst[j][1] and j==0:
+                new_lst.insert(0,i)
+            elif i[1]<new_lst[j][-1]:
+                new_lst.insert(-1,i)
+            elif i[1]>new_lst[j][1]:
+                new_lst.insert(j,i)
+    return new_lst
+","Test: sort_age([(""M"", 35), (""F"", 18), (""M"", 23), (""F"", 19), (""M"", 30), (""M"", 17)])
+Expected: [('M', 35), ('M', 30), ('M', 23), ('F', 19), ('F', 18), ('M', 17)]
+Got: [('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 23), ('M', 23), ('F', 19), ('F', 19), ('F', 18), ('F', 19), ('F', 19), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 35)]","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_4/code/wrong/wrong_4_020.py
+42,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    for i in range(len(lst)-1):
+        for j in range(len(lst)-i):
+            if lst[j][1] < lst[j+1][1]:
+                lst[j][1],lst[j+1][1] = lst[j+1][1],lst[j][1]
+            else:
+                continue
+    return lst        
+    pass
+","Test: sort_age([(""M"", 35), (""F"", 18), (""M"", 23), (""F"", 19), (""M"", 30), (""M"", 17)])
+TypeError: 'tuple' object does not support item assignment (line 5)",runtime,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_302.py
+43,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    holder=[]
+    if lst==[]:
+        return []
+    for x in lst:
+        if holder==[]:
+            holder=x
+        elif x[1]>holder[1]:
+            holder=x
+    return holder+sort_age(lst[1:])
+
+","Test: sort_age([(""F"", 19)])
+TypeError: can only concatenate tuple (not ""list"") to tuple (line 10)",runtime,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_089.py
+44,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    list1 = []
+    while lst:
+        biggest = lst[0][1]
+        b = lst[0]
+        for i in range(1,len(lst)-1):
+            if lst[i][1] > biggest:
+                biggest = lst[i][1]
+                s = (lst[i],)
+        lst.remove(biggest)
+        list1.append(biggest)
+    return list1
+
+","Test: sort_age([(""F"", 19)])
+ValueError: list.remove(x): x not in list (line 10)",runtime,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_247.py
+45,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    sort = []
+    while lst:
+        smallest = lst[0]
+        for element in a:
+            if element[1] < smallest[1]:
+                smallest = element
+            lst.remove(smallest)
+            sort.append(smallest)
+        
+    pass
+","Test: sort_age([(""F"", 19)])
+NameError: name 'a' is not defined (line 5)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_4/code/wrong/wrong_4_209.py
+46,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    biggest = lst[0][1]
+    for i in range(len(lst)):
+        if lst[0][1]<lst[i][1]:
+            biggest = lst[i][1]
+            continue
+        else:
+            biggest = lst[0][1]
+    return [(biggest),] + sort_age(lst[1:len(lst)])         
+    pass
+","Test: sort_age([(""F"", 19)])
+IndexError: list index out of range (line 2)",runtime,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_194.py
+47,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    a=lst
+    sort=[]
+    while a:
+        smallest=a[0]
+        for element in a:
+            if element[1]<smallest[1]:
+                smallest=element
+    a.remove(smallest)
+    sort.append(smallest)
+    return sort
+",Timed out after 5 seconds (the code may have an infinite loop),"FLAG: timeout: probably an infinite loop (logic), but check",,,,,raw/refactory/data/question_4/code/wrong/wrong_4_032.py
+48,refactory_q4,sorting,hard,"Write a function sort_age(lst) that takes a list of (gender, age) tuples, e.g. [('M', 23), ('F', 19)], and returns the list sorted by age from oldest to youngest.","def sort_age(lst):
+    result = [lst[0]]
+    for i in lst[1:]:
+        if i[1] > result[0][1]:
+            result.insert(0, i)
+        elif i[1] < result[-1][1]:
+            result.append(i)
+        else:
+            for j in range(len(result) - 1):
+                if i[1] < result[j][1] and i[1] > result[j+1][1]:
+                    result.insert(j+1, i)
+    return result
+","Test: sort_age([])
+IndexError: list index out of range (line 2)",runtime,,,,,raw/refactory/data/question_4/code/wrong/wrong_4_045.py
+49,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    sort = []
+    while lst:
+        biggest = lst[0]
+        for i in lst[1:]:
+            if i > biggest:
+                oldest = i
+        lst.remove(biggest)
+        sort.append(biggest)
+    
+    n = 1
+    sort_k = []
+    while n <= k:
+        sort_k.append(sort.pop(0))
+        n += 1
+    
+    return sort_k
+        
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+Expected: [9, 9, 9, 9, 7]
+Got: [9, 9, 4, 9, 7]",logic,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_025.py
+50,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    l = []
+    if k > len(lst):
+        return False
+    elif k == 1:
+        return lst
+    else:
+        a = max(lst)
+        lst.remove(a)
+        l.append(a)
+        top_k(lst, k-1)
+        return l
+        
+    # Fill in your code here
+    pass
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+Expected: [9, 9, 9, 9, 7]
+Got: [9]","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_5/code/wrong/wrong_5_099.py
+51,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    sort = []
+    while lst: 
+        biggest = lst[0]
+        for element in lst:
+            if ele > biggest:
+                biggest = ele
+                
+        lst.remove(element)
+        sort.append(element)
+        if len(sort)==k:
+            break
+    return sort
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+NameError: name 'ele' is not defined (line 6)",runtime,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_004.py
+52,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    count = 0
+    op = []
+    big = lst[0]
+    while count < k:
+        op += max(lst)
+        count += 1
+    return op
+            
+    
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+TypeError: 'int' object is not iterable (line 6)",runtime,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_053.py
+53,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    a=[]
+    while lst:
+        largest = lst[0]
+        for i in lst:
+            if i > largest:
+                largest = i
+                lst.remove(largest)
+                a.append(largest)
+    return a[:k]
+",Timed out after 5 seconds (the code may have an infinite loop),"FLAG: timeout: probably an infinite loop (logic), but check",,,,,raw/refactory/data/question_5/code/wrong/wrong_5_043.py
+54,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    new = []
+    while len(lst) > len(lst) - k:
+        new.append(lst.pop(max(lst)))
+        
+    return new
+        
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+IndexError: pop index out of range (line 4)",runtime,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_069.py
+55,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    if lst == []:
+        return []
+    elif k == 0:
+        return lst
+    else:
+        final = []
+        while lst:
+            element = max(lst)
+            final += [element,]
+            lst.remove(element)
+            if len(final) == k:
+                break
+        return final
+","Test: top_k([4, 5, 2, 3, 1, 6], 0)
+Expected: []
+Got: [4, 5, 2, 3, 1, 6]",logic,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_036.py
+56,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    new = []
+    while len(lst) > len(lst) - k:
+        top = max(lst) 
+        new.append(top)
+        lst.remove(top)
+        
+    return new
+        
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+ValueError: max() iterable argument is empty (line 4)",runtime,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_076.py
+57,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    counter=0
+    new_lst=[]
+    while counter<k:
+        new_lst.append(lst.remove(max(lst)))
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+ValueError: max() iterable argument is empty (line 5)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_5/code/wrong/wrong_5_102.py
+58,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    n = len(lst) - k
+    counter = 0
+    while counter < k:
+        lst.remove(min(lst))
+        counter = counter + 1
+    sort_list = []
+    while lst != []:
+        sort_lst.append(max(lst))
+        lst.remove(max(lst))
+    return sort_list
+    
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+NameError: name 'sort_lst' is not defined (line 9)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_5/code/wrong/wrong_5_009.py
+59,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    new_list = []
+    for i in lst:
+        if k==0:
+            break
+        new_list+=max(lst)
+        k-1
+    return lst
+    pass
+","Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+TypeError: 'int' object is not iterable (line 6)","FLAG: mixed: some tests crash, others give wrong output",,,,,raw/refactory/data/question_5/code/wrong/wrong_5_084.py
+60,refactory_q5,built-ins,medium,"Write a function top_k(lst, k) that returns a list of the k largest numbers in lst, from largest to smallest. Repeated numbers count separately, so top_k([9, 9, 4], 2) is [9, 9].","def top_k(lst, k):
+    tmp = []
+    while len(lst) > 0:
+        tmp.append(max(lst))
+        lst.remove(max(lst))
+    return tmp[:5]
+","Test: top_k([4, 5, 2, 3, 1, 6], 6)
+Expected: [6, 5, 4, 3, 2, 1]
+Got: [6, 5, 4, 3, 2]",logic,,,,,raw/refactory/data/question_5/code/wrong/wrong_5_003.py

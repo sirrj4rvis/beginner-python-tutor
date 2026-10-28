@@ -1,0 +1,46 @@
+%% Fig. (b) App architecture. Everything runs on the laptop except the Gemini API.
+%% Arrows connect whole boxes (subgraphs) so Mermaid keeps each box top-to-bottom.
+flowchart TB
+    U(["Learner"]) <--> UI["Streamlit UI"]
+    UI <--> TC["Tutor Controller"]
+
+    subgraph CE["1 · Concept Explanation"]
+        direction TB
+        N1[/"Beginner notes<br/>(official Python docs)"/] --> N2["Split into chunks<br/>+ embeddings"]
+        N2 --> N3[("ChromaDB<br/>vector store")]
+        N3 --> N4["Retrieve top-k chunks<br/>for the question"]
+        N4 --> N5["Gemini: answer<br/>from chunks only"]
+        N5 --> N6["Answer + sources"]
+    end
+
+    subgraph PG["2 · Practice Generation"]
+        direction TB
+        P1["Topic + difficulty"] --> P2["Gemini: exercise<br/>as JSON"]
+        P2 --> P3{"JSON valid and<br/>its solution passes<br/>its tests?"}
+        P3 -- no, retry --> P2
+        P3 -- yes --> P4["Exercise shown<br/>to learner"]
+    end
+
+    subgraph GF["3 · Guided Feedback"]
+        direction TB
+        G1["Learner code"] --> G2["Sandbox runner<br/>subprocess + time limit"]
+        G2 --> G3{"All tests<br/>pass?"}
+        G3 -- no --> G4["Fine-tuned model<br/>via Ollama"]
+        G4 --> G5{"Guardrail:<br/>solution leaked?"}
+        G5 -- yes, regenerate --> G4
+        G5 -- no --> G6["Hint 1, then Hint 2,<br/>then Explanation"]
+        G6 -- learner edits code --> G1
+        G3 -- yes --> G7["Solved"]
+    end
+
+    subgraph PT["4 · Progress Tracking"]
+        direction TB
+        DB[("Progress DB<br/>SQLite")] --> SEL["Next-topic and<br/>difficulty selector"]
+    end
+
+    TC --> CE
+    TC --> PG
+    TC --> GF
+    PG -- "exercise" --> GF
+    GF -- "result + hints used" --> PT
+    PT -- "next topic, difficulty" --> TC

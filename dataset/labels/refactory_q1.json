@@ -1,0 +1,98 @@
+[
+ {
+  "id": 1,
+  "bug_type": "logic",
+  "hint_1": "What does your function give back when the sequence is empty? Remember the answer should always be a position, which is a number.",
+  "hint_2": "Look at the last line, line 18: it returns `seq` itself. Also notice that the empty check on line 6 sits inside the `while` loop, which never runs for an empty `seq`.",
+  "explanation": "When `seq` is empty, `len(seq)` is 0, so the `while` loop on line 5 never starts and the check on line 6 is never reached. The code goes straight to the last line and hands back the sequence, which is why you get [] instead of 0. A function that should return a position must return a number on every path, including the case where a loop runs zero times.",
+  "fixed_code": "def search(x, seq):\n    a = list(enumerate(seq))\n    seq = list(seq)\n    i = 0\n    while i < len(seq):\n        if seq == []:\n            return 0\n        if x < seq[i] and i == 0:\n            return 0\n        elif x <= a[i][1] and x >= a[i-1][1]:\n            return a[i][0]\n        elif x > a[len(seq)-1][1]:\n            return len(seq)\n        else:\n            i = i + 1\n\n\n    return 0\n"
+ },
+ {
+  "id": 2,
+  "bug_type": "runtime",
+  "hint_1": "What happens to your loop when the sequence has no items at all? Think about which checks still get a chance to run.",
+  "hint_2": "The empty check on lines 6 and 7 is inside the `for` loop, so it never runs for an empty `seq`. The code then reaches line 15 and uses `seq[counter]` with `counter` still at -1.",
+  "explanation": "A `for` loop over an empty sequence runs zero times, so the check for an empty `seq` inside it is skipped. The code then reaches line 15 and tries to read an item from an empty list, and any index on an empty list is out of range, so Python raises an IndexError. Special cases like an empty input should be checked before the loop starts.",
+  "fixed_code": "def search(x, seq):\n    \"\"\" Takes in a value x and a sorted sequence seq, and returns the\n    position that x should go to such that the sequence remains sorted \"\"\"\n    counter = -1\n    if len(seq) == 0:\n        return 0\n    for i in seq:\n        if x <= i:\n            counter += 1\n            return counter\n        elif x > i:\n            counter += 1\n        else:\n            counter += 1\n    if x > seq[counter]:\n        return counter + 1\n"
+ },
+ {
+  "id": 3,
+  "bug_type": "logic",
+  "hint_1": "Your loop only looks at gaps between two neighbouring items. What should the answer be when x is bigger than every item, or smaller than the first one?",
+  "hint_2": "Look at line 5: when the loop finds no gap, the function returns `None`. The cases before the first item, after the last item and an empty `seq` all end up there.",
+  "explanation": "The loop checks whether x fits between `seq[i]` and `seq[i+1]`, so it only finds positions in the middle of the sequence. For 42, which is bigger than every item, no gap matches, the loop ends, and line 5 gives back None instead of 6. The answer can also be the very start or the very end of the sequence, so those cases need their own result, and the function should always return a number.",
+  "fixed_code": "def search(x, seq):\n    if len(seq) == 0 or x <= seq[0]:\n        return 0\n    for i in range(len(seq)-1):\n        if x > seq[i] and x <= seq[i+1]:\n            return i+1\n    return len(seq)\n"
+ },
+ {
+  "id": 4,
+  "bug_type": "logic",
+  "hint_1": "If x is equal to the last item, should it go after that item or at its position? Think about which comparison really means 'bigger than everything'.",
+  "hint_2": "Look at the condition on line 6: `>=` is also true when `x` equals the last item, so the code jumps to the end too early. Also check what happens when `seq` is empty and the loop never runs.",
+  "explanation": "On line 6 the code checks whether x is bigger than or equal to the last item. For 10 in a sequence that ends with 10, this is true on the very first round of the loop, so the code returns 6 before line 4 can find the matching 10 at index 5. Only a value strictly bigger than every item belongs at the end, and the function also needs a result for an empty sequence, where the loop does not run at all.",
+  "fixed_code": "def search(x, seq):\n\n    for i in range(len(seq)):\n        if x<=seq[i]:\n            return i\n        elif x>seq[len(seq)-1]:\n            return len(seq)\n        else:\n            continue\n    return len(seq)\n"
+ },
+ {
+  "id": 5,
+  "bug_type": "logic",
+  "hint_1": "When x fits between two items, does it take the place of the smaller one or the bigger one? Try the example by hand with a small list.",
+  "hint_2": "Look at line 8: when `seq[i] < x <= seq[i+1]`, the code returns `i`, the position of the smaller item. Also check line 9, which gives a number bigger than the length for an empty `seq`.",
+  "explanation": "The condition on line 7 is true when x lies between `seq[i]` and the next item, but line 8 returns the position of the smaller item. For 5 in (1, 5, 10), x fits after 1, so the code returns 0 when the right place is 1. If x goes after an item, its position is one more than that item's index. An empty sequence should also give 0, not a number bigger than its length.",
+  "fixed_code": "def search(x, seq):\n    for i in range(len(seq)):\n        if x <= seq[i]:\n            return i\n        elif seq[i] == seq[-1] and seq[i]<x:\n            return i+1\n        elif seq[i]<x<=seq[i+1]:\n            return i+1\n    return len(seq)\n"
+ },
+ {
+  "id": 6,
+  "bug_type": "runtime",
+  "hint_1": "What value does your loop variable have if the loop never runs even once? Think about the empty sequence.",
+  "hint_2": "Line 5 returns `i`, but `i` is only created by the `for` loop on line 2. With an empty `seq` the loop body never runs, so `i` never gets a value.",
+  "explanation": "A `for` loop only creates its loop variable when it runs at least once. When `seq` is empty, the loop is skipped, so `i` was never given a value, and line 5 cannot return it. That is why Python raises an UnboundLocalError. If a variable is used after a loop, give it a starting value before the loop so it exists even when the loop does not run.",
+  "fixed_code": "def search(x, seq):\n    i = 0\n    for i in range(len(seq)):\n        if x<=seq[i]:break\n        if i==len(seq)-1: i+=1\n    return i\n"
+ },
+ {
+  "id": 7,
+  "bug_type": "logic",
+  "hint_1": "What happens when x is exactly equal to the last item? Follow your loop to see if it ever looks at that last item on its own.",
+  "hint_2": "On line 10 the check `x<seq[i+1]` uses `<`, so a value equal to the next item is skipped, and the `x==seq[i]` check on line 12 never reaches the last item. Also look at the order of your checks: line 2 reads `seq[0]` before the empty check on line 6.",
+  "explanation": "When x equals the last item, it is not bigger than the last item, so the code goes into the loop. The loop stops one item early, and line 10 only matches values strictly less than the next item, so 10 is never matched and the function ends without returning, which gives None. Check that every possible x, including one equal to an item at the edges, leads to a return. Also, an empty sequence must be checked first, because reading the first item of an empty sequence crashes.",
+  "fixed_code": "def search(x, seq):\n    if len(seq) == 0:\n        return 0\n    elif x<seq[0]:\n        return 0\n    elif x>seq[-1]:\n        return len(seq)\n    else:\n        for i in range(len(seq)-1):\n            if x>seq[i] and x<=seq[i+1]:\n                return i+1\n            elif x==seq[i]:\n                return i\n"
+ },
+ {
+  "id": 8,
+  "bug_type": "logic",
+  "hint_1": "Your function gets a value x to place. Is that value still there once the loop starts? Check every name your loop creates.",
+  "hint_2": "On line 5, `for i, x in enumerate(seq)` reuses the name `x`, so the value you were given is replaced by each item. Then the test on line 6 compares an item with itself.",
+  "explanation": "The loop on line 5 stores each item in `x`, which throws away the value you were asked to place. Now `x` and `seq[i]` are the same item, so the check on line 6 is never true, and the code always reaches line 8 and returns the last index, 5. Give the loop variable a new name so the parameter keeps its value. After that, think about values equal to an item, values bigger than every item and an empty sequence.",
+  "fixed_code": "def search(x, seq):\n    #Takes in a value x and a sorted sequence seq, and returns the\n    #position that x should go to such that the sequence remains sorted\n\n    for i, elem in enumerate(seq):\n        if x <= seq[i]:\n            return i\n    return len(seq)\n"
+ },
+ {
+  "id": 9,
+  "bug_type": "runtime",
+  "hint_1": "Your code has a special case for an empty sequence. Does it work for an empty list as well as an empty tuple, and what answer should it give?",
+  "hint_2": "The check on line 2 compares `seq` with `()`, an empty tuple, so an empty list `[]` skips it and reaches line 7, where `i` was never set. Also look at what line 3 returns.",
+  "explanation": "An empty list and an empty tuple are not equal in Python, so the check on line 2 misses `[]`. The loop then runs zero times, `i` is never created, and line 7 crashes with an UnboundLocalError. When you check for an empty sequence, use a test that works for any type, like its length, and return a position, which is a number.",
+  "fixed_code": "def search(x, seq):\n    if len(seq) == 0:\n        return 0\n    for i, elem in enumerate(seq):\n        if x <= elem:\n            return i\n    return i+1\n"
+ },
+ {
+  "id": 10,
+  "bug_type": "logic",
+  "hint_1": "If x is equal to an item already in the sequence, where should it go? Think about the first item that is greater than or equal to x.",
+  "hint_2": "Look at the comparison on line 7: `x < elem` skips an item that is equal to `x`, so the loop moves one place too far. Also, lines 2 and 4 read `seq[0]` and `seq[-1]` even when `seq` is empty.",
+  "explanation": "The loop returns the first item that is strictly bigger than x. For 5 in (1, 5, 10), the item 5 is skipped because 5 is not less than 5, so the code returns 2 instead of 1. The task asks for the first item that is greater than or equal to x, so equal values must count too. An empty sequence also needs its own check before the code reads the first or last item.",
+  "fixed_code": "def search(x, seq):\n    if len(seq) == 0 or x < seq[0]:\n        return 0\n    elif x > seq[-1]:\n        return len(seq)\n    for i, elem in enumerate(seq):\n            if x <= elem:\n                return i\n"
+ },
+ {
+  "id": 11,
+  "bug_type": "runtime",
+  "hint_1": "A for loop needs something it can walk through, one item at a time. Is a single number something you can loop over?",
+  "hint_2": "On line 2, `len(seq)` gives one number, and a `for` loop cannot go through a number. Also check the position returned on line 6 and what happens when the loop ends without returning.",
+  "explanation": "The `len` function gives back one whole number, such as 6, and Python cannot loop over a single number, so it raises a TypeError on line 2. To visit every position, the loop needs a sequence of numbers from 0 up to the length, which is what range is for. Once the loop runs, also make sure the right position is returned for items in the middle and for values bigger than every item.",
+  "fixed_code": "def search(x, seq):\n    for i in range(len(seq)):\n        if seq[i] < x:\n            continue\n        else:\n            return i\n    return len(seq)\n    \"\"\" Takes in a value x and a sorted sequence seq, and returns the\n    position that x should go to such that the sequence remains sorted \"\"\"\n"
+ },
+ {
+  "id": 12,
+  "bug_type": "runtime",
+  "hint_1": "Your loop looks at each item and the one after it. What happens when it reaches the last item, which has nothing after it?",
+  "hint_2": "On line 14, `seq[i+1]` is read for every `i` from the `range` on line 13, including the last index, where `i+1` is past the end. Also check the empty case on line 4: it sets `i` but never returns.",
+  "explanation": "The loop on line 13 goes up to the last index, and line 14 also reads the next item. On the last round there is no next item, so `seq[i+1]` is out of range and Python raises an IndexError. When a loop compares each item with the next one, it must stop one step before the end. The empty case also needs to return its answer directly, because `lst2` is never made there.",
+  "fixed_code": "def search(x, seq):\n    lst1 = list(seq)\n    if lst1 == []:\n        return 0\n    else:\n        length = len(lst1)\n        lst2 = []\n        if x < seq[0]:\n            lst2 = [x] + lst1\n        elif x > seq[length -1]:\n            lst2 = lst1 + [x]\n        else:\n            for i in range(0, length-1):\n                if seq[i] <= x <= seq[i+1]:\n                    lst2 = lst1[:i+1] + [x] + lst1[i+1:]\n    for i in range(len(lst2)):\n        if x == lst2[i]:\n            return i\n"
+ }
+]

@@ -1,0 +1,2726 @@
+# Dataset review
+
+Skim each row. If something is off, edit that row in `labels/<task>.json`, then run `python merge_labels.py` and `python validate_dataset.py` in `dataset/scripts`.
+
+## Row 1: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    a = list(enumerate(seq))
+    seq = list(seq)
+    i = 0
+    while i < len(seq):
+        if seq == []:
+            return 0
+        if x < seq[i] and i == 0:
+            return 0
+        elif x <= a[i][1] and x >= a[i-1][1]:
+            return a[i][0]
+        elif x > a[len(seq)-1][1]:
+            return len(seq)
+        else:
+            i = i + 1
+            
+            
+    return seq
+```
+**Error**
+```
+Test: search(100, [])
+Expected: 0
+Got: []
+```
+- **Hint 1:** What does your function give back when the sequence is empty? Remember the answer should always be a position, which is a number.
+- **Hint 2:** Look at the last line, line 18: it returns `seq` itself. Also notice that the empty check on line 6 sits inside the `while` loop, which never runs for an empty `seq`.
+- **Explanation:** When `seq` is empty, `len(seq)` is 0, so the `while` loop on line 5 never starts and the check on line 6 is never reached. The code goes straight to the last line and hands back the sequence, which is why you get [] instead of 0. A function that should return a position must return a number on every path, including the case where a loop runs zero times.
+
+**Fixed code**
+```python
+def search(x, seq):
+    a = list(enumerate(seq))
+    seq = list(seq)
+    i = 0
+    while i < len(seq):
+        if seq == []:
+            return 0
+        if x < seq[i] and i == 0:
+            return 0
+        elif x <= a[i][1] and x >= a[i-1][1]:
+            return a[i][0]
+        elif x > a[len(seq)-1][1]:
+            return len(seq)
+        else:
+            i = i + 1
+
+
+    return 0
+```
+
+---
+
+## Row 2: refactory_q1 (loops, easy): runtime
+
+**Student code**
+```python
+def search(x, seq):
+    """ Takes in a value x and a sorted sequence seq, and returns the
+    position that x should go to such that the sequence remains sorted """
+    counter = -1
+    for i in seq:
+        if len(seq) == 0:
+            return 0
+        if x <= i:
+            counter += 1
+            return counter
+        elif x > i:
+            counter += 1
+        else:
+            counter += 1
+    if x > seq[counter]:
+        return counter + 1
+```
+**Error**
+```
+Test: search(100, [])
+IndexError: list index out of range (line 15)
+```
+- **Hint 1:** What happens to your loop when the sequence has no items at all? Think about which checks still get a chance to run.
+- **Hint 2:** The empty check on lines 6 and 7 is inside the `for` loop, so it never runs for an empty `seq`. The code then reaches line 15 and uses `seq[counter]` with `counter` still at -1.
+- **Explanation:** A `for` loop over an empty sequence runs zero times, so the check for an empty `seq` inside it is skipped. The code then reaches line 15 and tries to read an item from an empty list, and any index on an empty list is out of range, so Python raises an IndexError. Special cases like an empty input should be checked before the loop starts.
+
+**Fixed code**
+```python
+def search(x, seq):
+    """ Takes in a value x and a sorted sequence seq, and returns the
+    position that x should go to such that the sequence remains sorted """
+    counter = -1
+    if len(seq) == 0:
+        return 0
+    for i in seq:
+        if x <= i:
+            counter += 1
+            return counter
+        elif x > i:
+            counter += 1
+        else:
+            counter += 1
+    if x > seq[counter]:
+        return counter + 1
+```
+
+---
+
+## Row 3: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    for i in range(len(seq)-1):
+        if x > seq[i] and x <= seq[i+1]:
+            return i+1
+    return None
+```
+**Error**
+```
+Test: search(42, (-5, 1, 3, 5, 7, 10))
+Expected: 6
+Got: None
+```
+- **Hint 1:** Your loop only looks at gaps between two neighbouring items. What should the answer be when x is bigger than every item, or smaller than the first one?
+- **Hint 2:** Look at line 5: when the loop finds no gap, the function returns `None`. The cases before the first item, after the last item and an empty `seq` all end up there.
+- **Explanation:** The loop checks whether x fits between `seq[i]` and `seq[i+1]`, so it only finds positions in the middle of the sequence. For 42, which is bigger than every item, no gap matches, the loop ends, and line 5 gives back None instead of 6. The answer can also be the very start or the very end of the sequence, so those cases need their own result, and the function should always return a number.
+
+**Fixed code**
+```python
+def search(x, seq):
+    if len(seq) == 0 or x <= seq[0]:
+        return 0
+    for i in range(len(seq)-1):
+        if x > seq[i] and x <= seq[i+1]:
+            return i+1
+    return len(seq)
+```
+
+---
+
+## Row 4: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    
+    for i in range(len(seq)):
+        if x<=seq[i]:
+            return i
+        elif x>=seq[len(seq)-1]:
+            return len(seq)
+        else:
+            continue
+```
+**Error**
+```
+Test: search(10, (-5, -1, 3, 5, 7, 10))
+Expected: 5
+Got: 6
+```
+- **Hint 1:** If x is equal to the last item, should it go after that item or at its position? Think about which comparison really means 'bigger than everything'.
+- **Hint 2:** Look at the condition on line 6: `>=` is also true when `x` equals the last item, so the code jumps to the end too early. Also check what happens when `seq` is empty and the loop never runs.
+- **Explanation:** On line 6 the code checks whether x is bigger than or equal to the last item. For 10 in a sequence that ends with 10, this is true on the very first round of the loop, so the code returns 6 before line 4 can find the matching 10 at index 5. Only a value strictly bigger than every item belongs at the end, and the function also needs a result for an empty sequence, where the loop does not run at all.
+
+**Fixed code**
+```python
+def search(x, seq):
+
+    for i in range(len(seq)):
+        if x<=seq[i]:
+            return i
+        elif x>seq[len(seq)-1]:
+            return len(seq)
+        else:
+            continue
+    return len(seq)
+```
+
+---
+
+## Row 5: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    for i in range(len(seq)):
+        if x < seq[i]:
+            return i
+        elif seq[i] == seq[-1] and seq[i]<x:
+            return i+1
+        elif seq[i]<x<=seq[i+1]:
+            return i
+    return len(seq)+1
+```
+**Error**
+```
+Test: search(5, (1, 5, 10))
+Expected: 1
+Got: 0
+```
+- **Hint 1:** When x fits between two items, does it take the place of the smaller one or the bigger one? Try the example by hand with a small list.
+- **Hint 2:** Look at line 8: when `seq[i] < x <= seq[i+1]`, the code returns `i`, the position of the smaller item. Also check line 9, which gives a number bigger than the length for an empty `seq`.
+- **Explanation:** The condition on line 7 is true when x lies between `seq[i]` and the next item, but line 8 returns the position of the smaller item. For 5 in (1, 5, 10), x fits after 1, so the code returns 0 when the right place is 1. If x goes after an item, its position is one more than that item's index. An empty sequence should also give 0, not a number bigger than its length.
+
+**Fixed code**
+```python
+def search(x, seq):
+    for i in range(len(seq)):
+        if x <= seq[i]:
+            return i
+        elif seq[i] == seq[-1] and seq[i]<x:
+            return i+1
+        elif seq[i]<x<=seq[i+1]:
+            return i+1
+    return len(seq)
+```
+
+---
+
+## Row 6: refactory_q1 (loops, easy): runtime
+
+**Student code**
+```python
+def search(x, seq):
+    for i in range(len(seq)):
+        if x<=seq[i]:break
+        if i==len(seq)-1: i+=1
+    return i
+```
+**Error**
+```
+Test: search(100, [])
+UnboundLocalError: cannot access local variable 'i' where it is not associated with a value (line 5)
+```
+- **Hint 1:** What value does your loop variable have if the loop never runs even once? Think about the empty sequence.
+- **Hint 2:** Line 5 returns `i`, but `i` is only created by the `for` loop on line 2. With an empty `seq` the loop body never runs, so `i` never gets a value.
+- **Explanation:** A `for` loop only creates its loop variable when it runs at least once. When `seq` is empty, the loop is skipped, so `i` was never given a value, and line 5 cannot return it. That is why Python raises an UnboundLocalError. If a variable is used after a loop, give it a starting value before the loop so it exists even when the loop does not run.
+
+**Fixed code**
+```python
+def search(x, seq):
+    i = 0
+    for i in range(len(seq)):
+        if x<=seq[i]:break
+        if i==len(seq)-1: i+=1
+    return i
+```
+
+---
+
+## Row 7: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    if x<seq[0]:
+        return 0
+    elif x>seq[-1]:
+        return len(seq)
+    elif seq is ():
+        return 0
+    else:
+        for i in range(len(seq)-1):
+            if x>seq[i] and x<seq[i+1]:
+                return i+1
+            elif x==seq[i]:
+                return i
+```
+**Error**
+```
+Test: search(10, (-5, -1, 3, 5, 7, 10))
+Expected: 5
+Got: None
+```
+- **Hint 1:** What happens when x is exactly equal to the last item? Follow your loop to see if it ever looks at that last item on its own.
+- **Hint 2:** On line 10 the check `x<seq[i+1]` uses `<`, so a value equal to the next item is skipped, and the `x==seq[i]` check on line 12 never reaches the last item. Also look at the order of your checks: line 2 reads `seq[0]` before the empty check on line 6.
+- **Explanation:** When x equals the last item, it is not bigger than the last item, so the code goes into the loop. The loop stops one item early, and line 10 only matches values strictly less than the next item, so 10 is never matched and the function ends without returning, which gives None. Check that every possible x, including one equal to an item at the edges, leads to a return. Also, an empty sequence must be checked first, because reading the first item of an empty sequence crashes.
+
+**Fixed code**
+```python
+def search(x, seq):
+    if len(seq) == 0:
+        return 0
+    elif x<seq[0]:
+        return 0
+    elif x>seq[-1]:
+        return len(seq)
+    else:
+        for i in range(len(seq)-1):
+            if x>seq[i] and x<=seq[i+1]:
+                return i+1
+            elif x==seq[i]:
+                return i
+```
+
+---
+
+## Row 8: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    #Takes in a value x and a sorted sequence seq, and returns the
+    #position that x should go to such that the sequence remains sorted 
+            
+    for i, x in enumerate(seq):
+        if x < seq[i]:
+            return i
+    return i
+```
+**Error**
+```
+Test: search(42, (-5, 1, 3, 5, 7, 10))
+Expected: 6
+Got: 5
+```
+- **Hint 1:** Your function gets a value x to place. Is that value still there once the loop starts? Check every name your loop creates.
+- **Hint 2:** On line 5, `for i, x in enumerate(seq)` reuses the name `x`, so the value you were given is replaced by each item. Then the test on line 6 compares an item with itself.
+- **Explanation:** The loop on line 5 stores each item in `x`, which throws away the value you were asked to place. Now `x` and `seq[i]` are the same item, so the check on line 6 is never true, and the code always reaches line 8 and returns the last index, 5. Give the loop variable a new name so the parameter keeps its value. After that, think about values equal to an item, values bigger than every item and an empty sequence.
+
+**Fixed code**
+```python
+def search(x, seq):
+    #Takes in a value x and a sorted sequence seq, and returns the
+    #position that x should go to such that the sequence remains sorted
+
+    for i, elem in enumerate(seq):
+        if x <= seq[i]:
+            return i
+    return len(seq)
+```
+
+---
+
+## Row 9: refactory_q1 (loops, easy): runtime
+
+**Student code**
+```python
+def search(x, seq):
+    if seq == ():
+        return 'not found'
+    for i, elem in enumerate(seq):
+        if x <= elem:
+            return i
+    return i+1
+```
+**Error**
+```
+Test: search(100, [])
+UnboundLocalError: cannot access local variable 'i' where it is not associated with a value (line 7)
+```
+- **Hint 1:** Your code has a special case for an empty sequence. Does it work for an empty list as well as an empty tuple, and what answer should it give?
+- **Hint 2:** The check on line 2 compares `seq` with `()`, an empty tuple, so an empty list `[]` skips it and reaches line 7, where `i` was never set. Also look at what line 3 returns.
+- **Explanation:** An empty list and an empty tuple are not equal in Python, so the check on line 2 misses `[]`. The loop then runs zero times, `i` is never created, and line 7 crashes with an UnboundLocalError. When you check for an empty sequence, use a test that works for any type, like its length, and return a position, which is a number.
+
+**Fixed code**
+```python
+def search(x, seq):
+    if len(seq) == 0:
+        return 0
+    for i, elem in enumerate(seq):
+        if x <= elem:
+            return i
+    return i+1
+```
+
+---
+
+## Row 10: refactory_q1 (loops, easy): logic
+
+**Student code**
+```python
+def search(x, seq):
+    if x < seq[0]:
+        return 0
+    elif x > seq[-1]:
+        return len(seq)
+    for i, elem in enumerate(seq):
+            if x < elem:
+                return i
+```
+**Error**
+```
+Test: search(5, (1, 5, 10))
+Expected: 1
+Got: 2
+```
+- **Hint 1:** If x is equal to an item already in the sequence, where should it go? Think about the first item that is greater than or equal to x.
+- **Hint 2:** Look at the comparison on line 7: `x < elem` skips an item that is equal to `x`, so the loop moves one place too far. Also, lines 2 and 4 read `seq[0]` and `seq[-1]` even when `seq` is empty.
+- **Explanation:** The loop returns the first item that is strictly bigger than x. For 5 in (1, 5, 10), the item 5 is skipped because 5 is not less than 5, so the code returns 2 instead of 1. The task asks for the first item that is greater than or equal to x, so equal values must count too. An empty sequence also needs its own check before the code reads the first or last item.
+
+**Fixed code**
+```python
+def search(x, seq):
+    if len(seq) == 0 or x < seq[0]:
+        return 0
+    elif x > seq[-1]:
+        return len(seq)
+    for i, elem in enumerate(seq):
+            if x <= elem:
+                return i
+```
+
+---
+
+## Row 11: refactory_q1 (loops, easy): runtime
+
+**Student code**
+```python
+def search(x, seq):
+    for i in len(seq):
+        if seq[i] < x:
+            continue
+        else:
+            return i-1
+    """ Takes in a value x and a sorted sequence seq, and returns the
+    position that x should go to such that the sequence remains sorted """
+```
+**Error**
+```
+Test: search(42, (-5, 1, 3, 5, 7, 10))
+TypeError: 'int' object is not iterable (line 2)
+```
+- **Hint 1:** A for loop needs something it can walk through, one item at a time. Is a single number something you can loop over?
+- **Hint 2:** On line 2, `len(seq)` gives one number, and a `for` loop cannot go through a number. Also check the position returned on line 6 and what happens when the loop ends without returning.
+- **Explanation:** The `len` function gives back one whole number, such as 6, and Python cannot loop over a single number, so it raises a TypeError on line 2. To visit every position, the loop needs a sequence of numbers from 0 up to the length, which is what range is for. Once the loop runs, also make sure the right position is returned for items in the middle and for values bigger than every item.
+
+**Fixed code**
+```python
+def search(x, seq):
+    for i in range(len(seq)):
+        if seq[i] < x:
+            continue
+        else:
+            return i
+    return len(seq)
+    """ Takes in a value x and a sorted sequence seq, and returns the
+    position that x should go to such that the sequence remains sorted """
+```
+
+---
+
+## Row 12: refactory_q1 (loops, easy): runtime
+
+**Student code**
+```python
+def search(x, seq):
+    lst1 = list(seq)
+    if lst1 == []:
+        i = 0
+    else: 
+        length = len(lst1)
+        lst2 = []
+        if x < seq[0]:
+            lst2 = [x] + lst1
+        elif x > seq[length -1]:
+            lst2 = lst1 + [x]
+        else:
+            for i in range(0, length):
+                if seq[i] <= x <= seq[i+1]:
+                    lst2 = lst1[:i+1] + [x] + lst1[i+1:]
+    for i in range(len(lst2)):
+        if x == lst2[i]:
+            return i
+```
+**Error**
+```
+Test: search(10, (-5, -1, 3, 5, 7, 10))
+IndexError: tuple index out of range (line 14)
+```
+- **Hint 1:** Your loop looks at each item and the one after it. What happens when it reaches the last item, which has nothing after it?
+- **Hint 2:** On line 14, `seq[i+1]` is read for every `i` from the `range` on line 13, including the last index, where `i+1` is past the end. Also check the empty case on line 4: it sets `i` but never returns.
+- **Explanation:** The loop on line 13 goes up to the last index, and line 14 also reads the next item. On the last round there is no next item, so `seq[i+1]` is out of range and Python raises an IndexError. When a loop compares each item with the next one, it must stop one step before the end. The empty case also needs to return its answer directly, because `lst2` is never made there.
+
+**Fixed code**
+```python
+def search(x, seq):
+    lst1 = list(seq)
+    if lst1 == []:
+        return 0
+    else:
+        length = len(lst1)
+        lst2 = []
+        if x < seq[0]:
+            lst2 = [x] + lst1
+        elif x > seq[length -1]:
+            lst2 = lst1 + [x]
+        else:
+            for i in range(0, length-1):
+                if seq[i] <= x <= seq[i+1]:
+                    lst2 = lst1[:i+1] + [x] + lst1[i+1:]
+    for i in range(len(lst2)):
+        if x == lst2[i]:
+            return i
+```
+
+---
+
+## Row 13: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    counter = 0
+    for possible_birthday in possible_birthdays:
+        if possible_birthday[1] == day:
+            counter += 1
+    if counter > 1:
+        return False
+    return True
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for possible_birthday in possible_birthdays:
+        if possible_birthday[0] == month:
+            counter += 1
+    if counter > 1:
+        return False
+    return True
+
+def contains_unique_day(month, possible_birthdays):
+    filtered_birthdays = tuple(filter(lambda x: x[0] == month,possible_birthdays))
+    for day in tuple(map(lambda x: x[1], filtered_birthdays)):
+        if unique_day(day, possible_birthdays):
+            return True
+    return False
+```
+**Error**
+```
+Test: unique_day("3", (("January","1"),("January","2")))
+Expected: False
+Got: True
+```
+- **Hint 1:** What should the answer be when no birthday at all has that day? Think about whether zero matches can count as unique.
+- **Hint 2:** On line 6 in `unique_day`, the check `counter > 1` only catches days that appear too often, so a count of 0 falls through to `return True`. The same check on line 15 in `unique_month` has this problem too.
+- **Explanation:** Right now `unique_day` only returns False when the day appears more than once. Day "3" appears zero times, so the condition is false and the function returns True. A day is unique only when it appears exactly once, so a count of 0 must also give False. When a rule says "exactly one", check for both too many and too few.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    counter = 0
+    for possible_birthday in possible_birthdays:
+        if possible_birthday[1] == day:
+            counter += 1
+    if counter != 1:
+        return False
+    return True
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for possible_birthday in possible_birthdays:
+        if possible_birthday[0] == month:
+            counter += 1
+    if counter != 1:
+        return False
+    return True
+
+def contains_unique_day(month, possible_birthdays):
+    filtered_birthdays = tuple(filter(lambda x: x[0] == month,possible_birthdays))
+    for day in tuple(map(lambda x: x[1], filtered_birthdays)):
+        if unique_day(day, possible_birthdays):
+            return True
+    return False
+```
+
+---
+
+## Row 14: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    store = 0
+    for i in possible_birthdays:
+        if i[1] == day:
+            if store == 1:
+                return False
+            else:
+                store += 1
+    return True
+
+def unique_month(month, possible_birthdays):
+    store = 0
+    for i in possible_birthdays:
+        if i[0] == month:
+            if store == 1:
+                return False
+            else:
+                store += 1
+    return True
+
+def contains_unique_day(month, possible_birthdays):
+    def generate_unique_days(possible_birthdays):
+        generate = ()
+        for i in range(14, 20):
+            if unique_day(str(i), possible_birthdays):
+                generate += (str(i),)
+        return generate
+    for i in possible_birthdays:
+        if i[0] == month:
+            if str(i[1]) in generate_unique_days(possible_birthdays):
+                return True
+    return False
+```
+**Error**
+```
+Test: contains_unique_day("January", (("January","1"),("January","2")))
+Expected: True
+Got: False
+```
+- **Hint 1:** Which days does your helper actually try? Could a birthday have a day outside the few numbers you check?
+- **Hint 2:** On line 24 in `contains_unique_day`, the helper `generate_unique_days` only tries the days 14 to 19 with `range(14, 20)`, so days like "1" or "2" are never checked.
+- **Explanation:** The helper builds its list of unique days by testing only the numbers 14 to 19, which fit the example birthdays but not other inputs. In this test the days are "1" and "2", so they never end up in that list and the function returns False. A function should work for any input it is given, so the days it checks must cover every day that can appear, not just the ones in one example.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    store = 0
+    for i in possible_birthdays:
+        if i[1] == day:
+            if store == 1:
+                return False
+            else:
+                store += 1
+    return store == 1
+
+def unique_month(month, possible_birthdays):
+    store = 0
+    for i in possible_birthdays:
+        if i[0] == month:
+            if store == 1:
+                return False
+            else:
+                store += 1
+    return store == 1
+
+def contains_unique_day(month, possible_birthdays):
+    def generate_unique_days(possible_birthdays):
+        generate = ()
+        for i in range(1, 32):
+            if unique_day(str(i), possible_birthdays):
+                generate += (str(i),)
+        return generate
+    for i in possible_birthdays:
+        if i[0] == month:
+            if str(i[1]) in generate_unique_days(possible_birthdays):
+                return True
+    return False
+```
+
+---
+
+## Row 15: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(date, possible_birthdays):
+    for i in range(len(possible_birthdays)):
+        if date==possible_birthdays[i]:
+            return True
+        else:
+            return False
+
+def unique_month(month, possible_birthdays):
+    return
+
+def contains_unique_day(month, possible_birthdays):
+    return
+```
+**Error**
+```
+Test: unique_month("January", (("January","1"),("January","2")))
+Expected: False
+Got: None
+```
+- **Hint 1:** What does a function give back when it ends with a bare return and nothing after it? Each of the three functions needs to work something out and give back True or False.
+- **Hint 2:** In `unique_month`, line 9 is only `return` with no value, so the function always gives back None. It needs a loop that counts how many birthdays have that month, and `contains_unique_day` on line 12 is still empty too.
+- **Explanation:** A bare `return` ends the function and hands back None. The test expects False here, because "January" appears twice, but `unique_month` never looks at the birthdays at all. Every function must actually do its work and return a value; here that means counting the birthdays whose month matches and checking whether that count is exactly 1.
+
+**Fixed code**
+```python
+def unique_day(date, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if date==possible_birthdays[i][1]:
+            count += 1
+    return count == 1
+
+def unique_month(month, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if month==possible_birthdays[i][0]:
+            count += 1
+    return count == 1
+
+def contains_unique_day(month, possible_birthdays):
+    for i in range(len(possible_birthdays)):
+        if month==possible_birthdays[i][0]:
+            if unique_day(possible_birthdays[i][1], possible_birthdays):
+                return True
+    return False
+```
+
+---
+
+## Row 16: refactory_q2 (functions, medium): runtime
+
+**Student code**
+```python
+def unique_day(date, possible_birthdays):
+    count=0
+    for date in birthday[(len(possible_birthdays))-1][1]:
+        count += 1
+        possible_birthday=possible_birthday[:(len(possible_birthdays))-1]
+    if count==1:
+        return True
+    else:
+        return False
+    
+
+def unique_month(month, possible_birthdays):
+    return
+
+def contains_unique_day(month, possible_birthdays):
+    return
+```
+**Error**
+```
+Test: unique_day("1", (("January","1"),("February","1")))
+NameError: name 'birthday' is not defined (line 3)
+```
+- **Hint 1:** Which tuple should your loop walk through? Check that every name you use has been created before you use it.
+- **Hint 2:** On line 3 in `unique_day`, the loop uses `birthday`, but no variable with that name exists; the birthdays are in the parameter `possible_birthdays`. The loop also reuses `date` as its loop variable, which overwrites the day you were asked to look for.
+- **Explanation:** Python reaches line 3 and looks for a variable called `birthday`, but that name was never created, so it stops with a NameError. Your data is in the parameter `possible_birthdays`, so the loop should go through that tuple one birthday at a time and compare each day with `date`. Remember that a name only exists after you create it, as a parameter, a normal variable or a loop variable.
+
+**Fixed code**
+```python
+def unique_day(date, possible_birthdays):
+    count=0
+    for birthday in possible_birthdays:
+        if birthday[1]==date:
+            count += 1
+    if count==1:
+        return True
+    else:
+        return False
+
+
+def unique_month(month, possible_birthdays):
+    count=0
+    for birthday in possible_birthdays:
+        if birthday[0]==month:
+            count += 1
+    if count==1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    for birthday in possible_birthdays:
+        if birthday[0]==month and unique_day(birthday[1], possible_birthdays):
+            return True
+    return False
+```
+
+---
+
+## Row 17: refactory_q2 (functions, medium): runtime
+
+**Student code**
+```python
+def unique_day(date, possible_birthdays):
+    tup = ()
+    for i in possible_birthdays:
+        if i[1] == day:
+            tup += (i[1],)
+    if len(tup) == 1:
+        return True
+    elif len(tup) > 1:
+        return False
+    elif len(tup) == 0:
+        return None
+
+def unique_month(month, possible_birthdays):
+    tup = ()
+    for i in possible_birthdays:
+        if i[0] == month:
+            tup += (i[0],)
+    if len(tup) == 1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    tup = ()
+    for date in possible_birthdays:
+        if date[0] == month:
+            tup += (date,)
+    for bday in tup:
+        if unique_day(bday[1], possible_birthdays):
+            return True
+    return False
+```
+**Error**
+```
+Test: unique_day("1", (("January","1"),("February","1")))
+NameError: name 'day' is not defined (line 4)
+```
+- **Hint 1:** Is the name you compare with the same as the name the function receives? Check the spelling of the parameter.
+- **Hint 2:** On line 4 in `unique_day` the code compares with `day`, but the parameter on line 1 is called `date`.
+- **Explanation:** The first parameter of `unique_day` is named `date`, so there is no variable called `day` inside this function. When line 4 runs, Python cannot find `day` and stops with a NameError. Inside a function, use exactly the parameter names written in its first line.
+
+**Fixed code**
+```python
+def unique_day(date, possible_birthdays):
+    tup = ()
+    for i in possible_birthdays:
+        if i[1] == date:
+            tup += (i[1],)
+    if len(tup) == 1:
+        return True
+    elif len(tup) > 1:
+        return False
+    elif len(tup) == 0:
+        return False
+
+def unique_month(month, possible_birthdays):
+    tup = ()
+    for i in possible_birthdays:
+        if i[0] == month:
+            tup += (i[0],)
+    if len(tup) == 1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    tup = ()
+    for date in possible_birthdays:
+        if date[0] == month:
+            tup += (date,)
+    for bday in tup:
+        if unique_day(bday[1], possible_birthdays):
+            return True
+    return False
+```
+
+---
+
+## Row 18: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    for x in possible_birthdays:
+        if day in x:
+            return True
+        else:
+            return False
+
+def unique_month(month, possible_birthdays):
+    for dates in possible_birthdays:
+        if month in dates:
+            return False
+        else:
+            return True
+
+
+def contains_unique_day(month, possible_birthdays):
+    return
+```
+**Error**
+```
+Test: unique_day("1", (("January","1"),("February","1")))
+Expected: False
+Got: True
+```
+- **Hint 1:** How many birthdays does your loop look at before it gives an answer? To know if a day is unique, you need to see all of them.
+- **Hint 2:** In `unique_day`, lines 3 to 6 return from inside the loop in both the `if` and the `else`, so only the first birthday is ever checked. Count the matches during the loop and decide only after the loop ends.
+- **Explanation:** A `return` ends the function right away. Because both branches return, the loop stops at the first birthday: "1" is in ("January","1"), so the function says True without ever seeing that February also has day "1". To check that something appears exactly once, count the matches over the whole tuple first, then give the answer after the loop.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    count = 0
+    for x in possible_birthdays:
+        if day in x:
+            count += 1
+    return count == 1
+
+def unique_month(month, possible_birthdays):
+    count = 0
+    for dates in possible_birthdays:
+        if month in dates:
+            count += 1
+    return count == 1
+
+
+def contains_unique_day(month, possible_birthdays):
+    for dates in possible_birthdays:
+        if month in dates and unique_day(dates[1], possible_birthdays):
+            return True
+    return False
+```
+
+---
+
+## Row 19: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if day == possible_birthdays[i][1]:
+            count += 1
+    if count > 1:
+        return False
+    else:
+        return True
+
+def unique_month(month, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if month == possible_birthdays[i][0]:
+            count += 1
+    if count > 1:
+        return False
+    else:
+        return True
+
+def contains_unique_day(month, possible_birthdays):
+    for day in possible_birthdays:
+        if unique_day(day[1], possible_birthdays) == True and month == day[0]:
+            return True
+        else:
+            return False
+```
+**Error**
+```
+Test: contains_unique_day("February", (("January","10"),("February","1"),("February","10")))
+Expected: True
+Got: False
+```
+- **Hint 1:** When the first birthday is not a match, should the function already give up? Think about when you really know the answer is False.
+- **Hint 2:** In `contains_unique_day`, the `else` with `return False` on lines 25 and 26 runs on the very first birthday that does not match, so the loop never reaches the others.
+- **Explanation:** The loop starts with ("January","10"), which is not in February, so the `else` branch returns False right away. The February birthday with the unique day "1" is never checked. You can only say False after the loop has looked at every birthday, so that return belongs after the loop, not inside it.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if day == possible_birthdays[i][1]:
+            count += 1
+    if count != 1:
+        return False
+    else:
+        return True
+
+def unique_month(month, possible_birthdays):
+    count = 0
+    for i in range(len(possible_birthdays)):
+        if month == possible_birthdays[i][0]:
+            count += 1
+    if count != 1:
+        return False
+    else:
+        return True
+
+def contains_unique_day(month, possible_birthdays):
+    for day in possible_birthdays:
+        if unique_day(day[1], possible_birthdays) == True and month == day[0]:
+            return True
+    return False
+```
+
+---
+
+## Row 20: refactory_q2 (functions, medium): runtime
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    counter=0
+    for i in possible_birthdays:
+        if i[1]==day:
+            counter=counter+1
+    if counter<=1:
+        return true
+    else:
+        return False
+
+def unique_month(month, possible_birthdays):
+    counter=0
+    for i in possible_birthdays:
+        if i[0]==month:
+            counter=counter+1
+    if counter<=1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    temp=()
+    for i in possible_birthdays:
+        if i[0]==month:
+            temp=temp+(i,)
+    for i in temp:
+        if unique_day(i[1],possible_birthdays):
+            return True
+    return False
+```
+**Error**
+```
+Test: contains_unique_day("January", (("January","1"),("January","2")))
+NameError: name 'true' is not defined (line 7)
+```
+- **Hint 1:** Python is picky about capital letters. How are the two truth values spelled in Python?
+- **Hint 2:** On line 7 in `unique_day`, `true` is written with a small t, so Python treats it as an unknown variable name.
+- **Explanation:** Python's truth values are True and False, always with a capital first letter. Written as `true`, Python looks for a variable with that name, finds none, and stops with a NameError. Remember that names in Python are case-sensitive, so `true` and True are different things.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    counter=0
+    for i in possible_birthdays:
+        if i[1]==day:
+            counter=counter+1
+    if counter==1:
+        return True
+    else:
+        return False
+
+def unique_month(month, possible_birthdays):
+    counter=0
+    for i in possible_birthdays:
+        if i[0]==month:
+            counter=counter+1
+    if counter==1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    temp=()
+    for i in possible_birthdays:
+        if i[0]==month:
+            temp=temp+(i,)
+    for i in temp:
+        if unique_day(i[1],possible_birthdays):
+            return True
+    return False
+```
+
+---
+
+## Row 21: refactory_q2 (functions, medium): runtime
+
+**Student code**
+```python
+def unique_day(date, possible_birthdays):
+    tester = 0
+    for i in possible_birthdays:
+        if date == i[1]:
+            if tester:
+                return False
+            else:
+                tester = 1
+    return tester
+
+def unique_month(month, possible_birthdays):
+    tester = 0
+    for i in possible_birthdays:
+        if date == i[0]:
+            if tester:
+                return False
+            else:
+                tester = 1
+    return tester
+
+def contains_unique_day(month, possible_birthdays):
+    return
+```
+**Error**
+```
+Test: unique_month("January", (("January","1"),("January","2")))
+NameError: name 'date' is not defined (line 14)
+```
+- **Hint 1:** Does each function use the name of its own parameter? Copying code from one function to another can leave old names behind.
+- **Hint 2:** On line 14 in `unique_month` the code compares `date`, but this function's parameter is called `month`; `date` only exists inside `unique_day`.
+- **Explanation:** Each function has its own variables, so `date` from `unique_day` cannot be seen inside `unique_month`. When line 14 runs, Python cannot find `date` and stops with a NameError. After copying code between functions, update the names to match the parameters of the new function.
+
+**Fixed code**
+```python
+def unique_day(date, possible_birthdays):
+    tester = 0
+    for i in possible_birthdays:
+        if date == i[1]:
+            if tester:
+                return False
+            else:
+                tester = 1
+    return tester
+
+def unique_month(month, possible_birthdays):
+    tester = 0
+    for i in possible_birthdays:
+        if month == i[0]:
+            if tester:
+                return False
+            else:
+                tester = 1
+    return tester
+
+def contains_unique_day(month, possible_birthdays):
+    for i in possible_birthdays:
+        if month == i[0]:
+            if unique_day(i[1], possible_birthdays):
+                return True
+    return False
+```
+
+---
+
+## Row 22: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    checker=True
+    for k in possible_birthdays:
+        if k[1]==day:
+          checker=False
+    return checker
+
+def unique_month(day, possible_birthdays):
+    checker=True
+    for k in possible_birthdays:
+        if k[0]==day:
+          checker=False
+    return checker
+    
+def contains_unique_day(month, possible_birthdays):
+    return
+```
+**Error**
+```
+Test: unique_month("January", (("January","1"),("February","1")))
+Expected: True
+Got: False
+```
+- **Hint 1:** When the loop finds the one birthday in that month, is that a reason to say it is not unique? Think about how to tell one match apart from two or more.
+- **Hint 2:** In `unique_month`, line 12 sets `checker` to False on any match, even the first one, so a month that appears once still gives False. You need to count the matches instead of switching to False on the first one.
+- **Explanation:** Right now the function gives False as soon as at least one birthday has that month, and True only when none do. "January" appears once, which should be unique, but that single match already sets `checker` to False. To test "exactly one", count how many birthdays match and then check whether the count is 1. The same idea applies to `unique_day`.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    checker=0
+    for k in possible_birthdays:
+        if k[1]==day:
+          checker+=1
+    return checker==1
+
+def unique_month(day, possible_birthdays):
+    checker=0
+    for k in possible_birthdays:
+        if k[0]==day:
+          checker+=1
+    return checker==1
+
+def contains_unique_day(month, possible_birthdays):
+    for k in possible_birthdays:
+        if k[0]==month and unique_day(k[1], possible_birthdays):
+          return True
+    return False
+```
+
+---
+
+## Row 23: refactory_q2 (functions, medium): runtime
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    counter = 0
+    for dates in possible_birthdays:
+        if day == dates[1]:
+            possible_birthdays = possible_birthdays[1:]
+            counter = counter + 1 
+    if counter == 1:
+        return True
+    else:
+        return False 
+    return
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for dates in possible_birthdays:
+        if month == dates[0]:
+            possible_birthdays = possible_birthdays[1:]
+            counter = counter + 1 
+    if counter == 1:
+        return True
+    else:
+        return False 
+
+def contains_unique_day(month, possible_birthdays):
+    counter = 0
+    new_list = keep_month(month,possible_birthdays)
+    for i in new_list:
+        if unique_day(i[1], possible_birthdays) == True:
+            return True
+
+    return False
+```
+**Error**
+```
+Test: contains_unique_day("January", (("January","1"),("January","2")))
+NameError: name 'keep_month' is not defined (line 26)
+```
+- **Hint 1:** Is every function you call actually written somewhere in your file? Python only knows about functions that have been created.
+- **Hint 2:** On line 26 in `contains_unique_day`, the code calls `keep_month`, but there is no function with that name in this file.
+- **Explanation:** Python runs line 26 and looks for a function called `keep_month`, but it was never written, so it stops with a NameError. You can either write that helper so it gives back the birthdays from the given month, or do that filtering directly inside `contains_unique_day`. Before calling a helper function, make sure it exists in the same file.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    counter = 0
+    for dates in possible_birthdays:
+        if day == dates[1]:
+            possible_birthdays = possible_birthdays[1:]
+            counter = counter + 1 
+    if counter == 1:
+        return True
+    else:
+        return False 
+    return
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for dates in possible_birthdays:
+        if month == dates[0]:
+            possible_birthdays = possible_birthdays[1:]
+            counter = counter + 1 
+    if counter == 1:
+        return True
+    else:
+        return False 
+
+def keep_month(month, possible_birthdays):
+    new_list = ()
+    for dates in possible_birthdays:
+        if month == dates[0]:
+            new_list = new_list + (dates,)
+    return new_list
+
+def contains_unique_day(month, possible_birthdays):
+    counter = 0
+    new_list = keep_month(month,possible_birthdays)
+    for i in new_list:
+        if unique_day(i[1], possible_birthdays) == True:
+            return True
+
+    return False
+```
+
+---
+
+## Row 24: refactory_q2 (functions, medium): logic
+
+**Student code**
+```python
+def unique_day(day, possible_birthdays):
+    counter = 0
+    for i in possible_birthdays:
+        if day == i[1]:
+            counter = counter + 1
+    if counter == 1:
+        return True
+    else:
+        return False
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for i in possible_birthdays:
+        if month == i[0]:
+            counter = counter + 1
+    if counter == 1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    month_day = ()
+    for j in possible_birthdays:
+        if j == possible_birthdays[0]:
+            month_day = month_day + (j,)
+    for t in month_day:
+        return unique_day(t[1], month_day)
+```
+**Error**
+```
+Test: contains_unique_day("January", (("January","1"),("February","1")))
+Expected: False
+Got: True
+```
+- **Hint 1:** To know if a day is unique, which birthdays should you compare it with: only the ones you picked out, or all of them?
+- **Hint 2:** On line 27 in `contains_unique_day`, `unique_day` is called with `month_day`, which holds only the birthdays you picked out, instead of the full `possible_birthdays`.
+- **Explanation:** Here `month_day` holds just ("January","1"), so day "1" looks unique inside it and the function returns True. But February also has day "1" in the full input, so the right answer is False. A day is unique only if no other birthday in the whole input shares it, so the uniqueness check must look at every birthday.
+
+**Fixed code**
+```python
+def unique_day(day, possible_birthdays):
+    counter = 0
+    for i in possible_birthdays:
+        if day == i[1]:
+            counter = counter + 1
+    if counter == 1:
+        return True
+    else:
+        return False
+
+def unique_month(month, possible_birthdays):
+    counter = 0
+    for i in possible_birthdays:
+        if month == i[0]:
+            counter = counter + 1
+    if counter == 1:
+        return True
+    else:
+        return False
+
+def contains_unique_day(month, possible_birthdays):
+    month_day = ()
+    for j in possible_birthdays:
+        if j[0] == month:
+            month_day = month_day + (j,)
+    for t in month_day:
+        if unique_day(t[1], possible_birthdays):
+            return True
+    return False
+```
+
+---
+
+## Row 25: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    new_list = []
+    for item in list:
+        if new_list.count(item) == 0:
+            new_list.append(item)
+    return new_list
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+TypeError: 'type' object is not iterable (line 3)
+```
+- **Hint 1:** Which list is your loop really going through? Make sure it walks over the list that was given to the function.
+- **Hint 2:** On line 3 the loop uses `list`, which is Python's built-in list type, not your parameter `lst`.
+- **Explanation:** In Python, `list` is the name of the built-in list type, so the loop tries to go through the type itself instead of your data. That is why Python says a 'type' object is not iterable. Your input is called `lst`, so the loop has to use that name. Always loop over the parameter you were given, and avoid naming your own variables after built-ins like list, str or max.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    new_list = []
+    for item in lst:
+        if new_list.count(item) == 0:
+            new_list.append(item)
+    return new_list
+```
+
+---
+
+## Row 26: refactory_q3 (lists, easy): logic
+
+**Student code**
+```python
+def remove_extras(lst):
+    lst2 = []
+    for x in lst:
+        if lst.count(x) < 1:
+            lst2.append(x)
+    return lst2
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+Expected: [1, 2, 3]
+Got: []
+```
+- **Hint 1:** Think about what count gives for an item you took from that very same list. Can it ever be less than 1?
+- **Hint 2:** On line 4 you count `x` inside `lst`, the input list, which always contains `x`. Check the list you are building, `lst2`, instead.
+- **Explanation:** Every `x` comes from `lst`, so counting it in `lst` always gives at least 1, and the condition is never true. That is why nothing is added and an empty list comes back. To keep only the first copy of each item, check the list you are building, because it only holds the items you have already kept.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    lst2 = []
+    for x in lst:
+        if lst2.count(x) < 1:
+            lst2.append(x)
+    return lst2
+```
+
+---
+
+## Row 27: refactory_q3 (lists, easy): logic
+
+**Student code**
+```python
+def remove_extras(lst):
+    if lst == []:
+        return []
+    elif lst[0] not in lst[1:]:
+        return [lst[0],] + remove_extras(lst[1:])
+    else:
+        return remove_extras(lst[1:])
+```
+**Error**
+```
+Test: remove_extras([1, 5, 1, 1, 3, 2])
+Expected: [1, 5, 3, 2]
+Got: [5, 1, 3, 2]
+```
+- **Hint 1:** When an item appears more than once, which copy does your code keep: the first one or the last one?
+- **Hint 2:** On line 4 `lst[0]` is kept only if it does not appear again later in `lst[1:]`, so the earlier copies are dropped and the last copy survives. Try deciding about the last item instead, by checking whether it already appeared earlier in the list.
+- **Explanation:** Right now an item is skipped whenever another copy of it comes later, so only its last copy is kept. For [1, 5, 1, 1, 3, 2] the first 1 is dropped and the 1 after the 5 is kept, which gives [5, 1, 3, 2]. The task wants the first copy, so an item should be skipped only when the same value already appeared before it. Always check which side of the list you compare against when you remove duplicates.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    if lst == []:
+        return []
+    elif lst[-1] not in lst[:-1]:
+        return remove_extras(lst[:-1]) + [lst[-1],]
+    else:
+        return remove_extras(lst[:-1])
+```
+
+---
+
+## Row 28: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    new_list = []
+    for elem in lst:
+        if elem not in new_list:
+            new_list += new.append(elem)
+    return new_list
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+NameError: name 'new' is not defined (line 5)
+```
+- **Hint 1:** Which list are you trying to add the new item to? Check that every name you use was created earlier in the function.
+- **Hint 2:** On line 5 the code calls `append` on `new`, but no variable called `new` exists; your list is called `new_list`. Also, `append` already changes the list by itself, so its result does not need to be added with `+=`.
+- **Explanation:** Python only knows names that were created before they are used, and this function never creates a variable called `new`. That is why it stops with a NameError on line 5. Your list is `new_list`, and calling append on it already adds the item, because append changes the list in place and gives back nothing. Always use the exact name of the variable you made.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    new_list = []
+    for elem in lst:
+        if elem not in new_list:
+            new_list.append(elem)
+    return new_list
+```
+
+---
+
+## Row 29: refactory_q3 (lists, easy): logic
+
+**Student code**
+```python
+def remove_extras(lst):
+    seq = (lst[0],)
+    for i in lst:
+        if i not in seq:
+            seq = seq + (lst[i],)
+    return seq
+    pass
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+Expected: [1, 2, 3]
+Got: (1, 1, 2)
+```
+- **Hint 1:** In your loop, is the loop variable a position in the list or one of the values in it? Think about what you really want to add to the result.
+- **Hint 2:** On line 5 `lst[i]` uses the value `i` as if it were a position, so it picks a different item (or one past the end). `i` is already the item you want to add. Also check what happens on line 2 when the list is empty, and that the function gives back a list, not a tuple.
+- **Explanation:** A `for i in lst` loop gives you the items themselves, not their positions. So `lst[i]` looks up the item at position i, which is some other item, and that is why (1, 1, 2) comes back instead of [1, 2, 3]; for bigger values it can even go past the end of the list. Use the item directly when the loop goes over the values. The tests also expect a list, and an empty input must work, so the result should start empty and be turned into a list at the end.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    seq = ()
+    for i in lst:
+        if i not in seq:
+            seq = seq + (i,)
+    return list(seq)
+    pass
+```
+
+---
+
+## Row 30: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    new_list=[lst[0]]
+    for i in lst:
+        if i in new_list:
+            continue
+        else:
+            new_list.append(i)
+    return new_list
+```
+**Error**
+```
+Test: remove_extras([])
+IndexError: list index out of range (line 2)
+```
+- **Hint 1:** What happens if the list you get is empty? Is there a first item to take?
+- **Hint 2:** On line 2 `new_list` starts with `lst[0]`, but an empty `lst` has no item at position 0. Your loop already adds the first item on its own, so `new_list` can start empty.
+- **Explanation:** Line 2 reads `lst[0]`, the item at position 0, before the loop even starts. When the test passes an empty list there is no position 0, so Python stops with an IndexError. The loop would add the first item anyway, because it is not yet in the new list. Always check that your code still works when the input is empty.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    new_list=[]
+    for i in lst:
+        if i in new_list:
+            continue
+        else:
+            new_list.append(i)
+    return new_list
+```
+
+---
+
+## Row 31: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    l=len(lst)
+    for i in range(l):
+        for j in range(i+1,l):
+            if lst[i]==lst[j]:
+                del lst[j]
+    return lst
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+IndexError: list index out of range (line 5)
+```
+- **Hint 1:** What happens to the length of a list when you delete an item from it while you are still looping over its positions?
+- **Hint 2:** On line 4 the inner loop uses `l`, the length from before any deletions, but `del lst[j]` on line 6 makes the list shorter, so `j` soon goes past the end. Going forward also skips the item that slides into the deleted spot; try walking `j` from the end of the current list back towards `i`.
+- **Explanation:** The ranges are worked out once with `l`, the starting length, but every `del` removes an item and shifts the later items one place left. So later values of `j` point past the end of the shorter list, and Python stops with an IndexError on line 5. If you delete items while looping by position, the positions stop matching the list. A safe trick is to go from the end towards the front and use the list's current length, so a deletion never moves items you still have to visit.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    l=len(lst)
+    for i in range(l):
+        for j in range(len(lst)-1,i,-1):
+            if lst[i]==lst[j]:
+                del lst[j]
+    return lst
+```
+
+---
+
+## Row 32: refactory_q3 (lists, easy): logic
+
+**Student code**
+```python
+def remove_extras(lst):
+    new = []
+    x = 0
+    while x < len(lst)+1:
+        if lst[x] in new:
+            new += lst[x]
+        else:
+            continue
+    return new
+```
+**Error**
+```
+Timed out after 5 seconds (the code may have an infinite loop)
+```
+- **Hint 1:** A while loop stops only when its condition becomes false. Does anything inside your loop move it forward to the next item?
+- **Hint 2:** Inside the `while` loop starting on line 4, `x` is never changed, so the loop looks at `lst[x]` again and again forever. Also check the `in` test on line 5 (you want items that are not yet in `new`), how line 6 adds a single item, and the `+1` in the loop condition.
+- **Explanation:** The loop keeps going while `x` is small enough, but nothing in the loop ever makes `x` bigger. So it checks the same item over and over and never finishes, which is why the test timed out. Every while loop needs a step that moves it towards its stop condition, such as adding 1 to the counter. After that, make sure the loop keeps items that are not yet in `new` and stops before going past the last position.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    new = []
+    x = 0
+    while x < len(lst):
+        if lst[x] not in new:
+            new += [lst[x]]
+        x += 1
+    return new
+```
+
+---
+
+## Row 33: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    new_list = ()
+    for x in lst:
+        if x not in new_list:
+            new_list += ((x))
+    return new_list
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+TypeError: can only concatenate tuple (not "int") to tuple (line 5)
+```
+- **Hint 1:** Do extra brackets around a value turn it into a tuple? Think about what makes a one-item tuple in Python.
+- **Hint 2:** On line 5 `((x))` is just the number `x` with extra brackets, so the code tries to add a number to the tuple `new_list`. A one-item tuple needs a comma. The tests also expect a list back, not a tuple.
+- **Explanation:** In Python, brackets alone only group things, so `((x))` is still a plain number. Adding a number to a tuple with += is not allowed, which is why the TypeError says it can only concatenate tuple to tuple. A tuple with one item needs a comma after the item. Also remember that the tests compare the result with a list, so a tuple has to be turned into a list before it is returned.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    new_list = ()
+    for x in lst:
+        if x not in new_list:
+            new_list += (x,)
+    return list(new_list)
+```
+
+---
+
+## Row 34: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    new_list = []
+    for item in lst:
+        if item not in new_list:
+            new_list.append.item
+    return new_list
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+AttributeError: 'builtin_function_or_method' object has no attribute 'item' (line 5)
+```
+- **Hint 1:** How do you call a method in Python and give it the value it should use?
+- **Hint 2:** On line 5 `new_list.append.item` uses a dot, so Python looks for something called `item` inside the `append` method. The item should be passed to `append` inside round brackets instead.
+- **Explanation:** A dot means "look inside this thing for a name", so `append.item` asks the append method for an attribute called item, which does not exist. That is why Python gives an AttributeError on line 5. To run a method you call it with round brackets and put the value inside them. Remember: dots reach names, brackets call functions and pass values.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    new_list = []
+    for item in lst:
+        if item not in new_list:
+            new_list.append(item)
+    return new_list
+```
+
+---
+
+## Row 35: refactory_q3 (lists, easy): runtime
+
+**Student code**
+```python
+def remove_extras(lst):
+    for i in range(0, len(lst)-1):
+        num = lst[i]
+        if lst.count(num) > 1:
+            lst.pop(i)
+    return lst
+```
+**Error**
+```
+Test: remove_extras([1, 1, 1, 2, 3])
+IndexError: list index out of range (line 3)
+```
+- **Hint 1:** What happens to the positions in a list when you remove an item from it while your loop is still counting through those positions?
+- **Hint 2:** On line 2 the range is fixed at the start, but `lst.pop(i)` on line 5 makes the list shorter, so `i` later points past the end on line 3. Going forward also removes the first copy of a repeated item instead of a later one; try walking `i` from the end of the list towards the front.
+- **Explanation:** The range on line 2 is built once from the starting length, but each `pop` makes the list one item shorter. Later values of `i` then point past the end, which is why line 3 gives an IndexError. Going from the front also throws away the first copy and keeps the last one, while the task wants the first copy kept. When you remove items while looping by position, going from the back to the front keeps the positions you still need correct.
+
+**Fixed code**
+```python
+def remove_extras(lst):
+    for i in range(len(lst)-1, -1, -1):
+        num = lst[i]
+        if lst.count(num) > 1:
+            lst.pop(i)
+    return lst
+```
+
+---
+
+## Row 37: refactory_q4 (sorting, hard): logic
+
+**Student code**
+```python
+def sort_age(lst):
+    old_lst = lst
+    new_lst = []
+    while old_lst:
+        largest = old_lst[0]
+        for i in lst:
+            if i > largest:
+                largest = i
+        old_lst.remove(largest)
+        new_lst.append(largest)
+    return new_lst
+```
+**Error**
+```
+Test: sort_age([("M", 35), ("F", 18), ("M", 23), ("F", 19), ("M", 30), ("M", 17)])
+Expected: [('M', 35), ('M', 30), ('M', 23), ('F', 19), ('F', 18), ('M', 17)]
+Got: [('M', 35), ('M', 30), ('M', 23), ('M', 17), ('F', 19), ('F', 18)]
+```
+- **Hint 1:** When Python compares two tuples, which part does it look at first? Think about whether that is the part you want to sort by.
+- **Hint 2:** On line 7 the condition compares the whole tuples `i` and `largest`, so the gender letter is checked before the age.
+- **Explanation:** Right now the code compares whole tuples, and Python compares tuples item by item, starting with the first one. The first item is the gender, and 'M' comes after 'F', so every man counts as "bigger" than every woman, whatever the age. That is why all the M tuples come first, even ('M', 17). When you sort by one part of a tuple, compare only that part, here the age at index 1.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    old_lst = lst
+    new_lst = []
+    while old_lst:
+        largest = old_lst[0]
+        for i in lst:
+            if i[1] > largest[1]:
+                largest = i
+        old_lst.remove(largest)
+        new_lst.append(largest)
+    return new_lst
+```
+
+---
+
+## Row 38: refactory_q4 (sorting, hard): logic
+
+**Student code**
+```python
+def sort_age(lst):
+    sorted_lst = []
+    while lst:
+        smallest = lst[0]
+        for i in lst:
+            if i[1] < smallest[1]:
+                smallest = i
+        lst.remove(smallest)
+        sorted_lst.append(smallest)
+    return sorted_lst.reverse
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+Expected: [('F', 19)]
+Got: <built-in method reverse of list object at 0x000001E652F0A280>
+```
+- **Hint 1:** Is the list method at the end actually being run? Think about what is needed to call a method, and what that method gives back.
+- **Hint 2:** On line 10 `sorted_lst.reverse` has no brackets, so the method is never called and the method itself is returned. Also, `reverse` changes the list in place and gives back None.
+- **Explanation:** Without brackets, `sorted_lst.reverse` is just the name of the method, so the function returns the method object instead of a list. That is why the output shows 'built-in method reverse'. A method only runs when you add brackets after it. Also remember that reverse changes the list itself and returns None, so reverse the list first and then return the list.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    sorted_lst = []
+    while lst:
+        smallest = lst[0]
+        for i in lst:
+            if i[1] < smallest[1]:
+                smallest = i
+        lst.remove(smallest)
+        sorted_lst.append(smallest)
+    sorted_lst.reverse()
+    return sorted_lst
+```
+
+---
+
+## Row 39: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    sort = []
+    while lsst: 
+        biggest = a[0]
+        for element in a:
+            if element > biggest:
+                smallest = element
+        a.remove(biggest)
+        sort.append(biggest)
+    return sort
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+NameError: name 'lsst' is not defined (line 3)
+```
+- **Hint 1:** Check the spelling of the names you use. Do they match the name of the list your function was given?
+- **Hint 2:** On line 3 the loop uses `lsst`, but the parameter is called `lst`. Lines 4, 5 and 8 also use `a`, which was never created.
+- **Explanation:** Python only knows the names you have created, like the parameter `lst`. The name `lsst` is a typo, so Python stops with a NameError as soon as it reaches line 3. Lines 4, 5 and 8 have the same problem with `a`. Once the names are fixed, also check that the loop compares only the ages and updates `biggest`, not a different variable.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    sort = []
+    while lst:
+        biggest = lst[0]
+        for element in lst:
+            if element[1] > biggest[1]:
+                biggest = element
+        lst.remove(biggest)
+        sort.append(biggest)
+    return sort
+```
+
+---
+
+## Row 40: refactory_q4 (sorting, hard): logic
+
+**Student code**
+```python
+def sort_age(lst):
+    first = lst[0]
+    firstnum = lst[0][1]
+    result = []
+    for x in lst[1:]:
+        if x[1] > firstnum:
+            result = (first,) + (x,)
+        else:
+            result = (x,) + (first,)
+    return result
+    pass
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+Expected: [('F', 19)]
+Got: []
+```
+- **Hint 1:** Where does the first tuple go if the list has only one item? And does each step add a tuple to your result, or replace the whole result?
+- **Hint 2:** `result` starts empty on line 4, and the loop on line 5 skips the first tuple, so with one item nothing is ever added. Inside the loop, lines 7 and 9 also replace `result` with a new pair each time instead of adding to it.
+- **Explanation:** With one tuple, `lst[1:]` is empty, so the loop never runs and the empty `result` is returned. With more tuples, each pass throws away the old `result` and keeps only a pair of two tuples. To build a sorted list, start the result with the first tuple and then put each new tuple into its right place, keeping what is already there. Also think about the empty list, where there is no first tuple at all.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    if lst == []:
+        return []
+    first = lst[0]
+    firstnum = lst[0][1]
+    result = [first]
+    for x in lst[1:]:
+        pos = 0
+        while pos < len(result) and result[pos][1] > x[1]:
+            pos = pos + 1
+        result.insert(pos, x)
+    return result
+    pass
+```
+
+---
+
+## Row 41: refactory_q4 (sorting, hard): logic
+
+**Student code**
+```python
+def sort_age(lst):
+    new_lst=[]
+    new_lst.append(lst[0])
+    for i in lst[1:]:
+        for j in range(len(new_lst)):
+            if i[1]>new_lst[j][1] and j==0:
+                new_lst.insert(0,i)
+            elif i[1]<new_lst[j][-1]:
+                new_lst.insert(-1,i)
+            elif i[1]>new_lst[j][1]:
+                new_lst.insert(j,i)
+    return new_lst
+```
+**Error**
+```
+Test: sort_age([("M", 35), ("F", 18), ("M", 23), ("F", 19), ("M", 30), ("M", 17)])
+Expected: [('M', 35), ('M', 30), ('M', 23), ('F', 19), ('F', 18), ('M', 17)]
+Got: [('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 30), ('M', 23), ('M', 23), ('F', 19), ('F', 19), ('F', 18), ('F', 19), ('F', 19), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 17), ('M', 35)]
+```
+- **Hint 1:** Once you have put a tuple into its place, should your code keep looking for more places to put it?
+- **Hint 2:** Look at the inner loop on lines 5 to 11: after an `insert`, the loop keeps going, so the same `i` can be inserted again on the next steps. Line 8 also compares with `new_lst[j]` and uses `insert(-1, i)`, which does not put the tuple at the end.
+- **Explanation:** Right now, after a tuple is inserted, the inner loop moves on to the next position and can insert the same tuple again. That is why the result has many copies of ('M', 30) and ('M', 17). Each tuple should be placed exactly once, so the inner loop must stop as soon as it inserts. Also, inserting at -1 puts an item before the last one, not after it, and an empty list has no first tuple to start with.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    if lst == []:
+        return []
+    new_lst=[]
+    new_lst.append(lst[0])
+    for i in lst[1:]:
+        for j in range(len(new_lst)):
+            if i[1]>new_lst[j][1] and j==0:
+                new_lst.insert(0,i)
+                break
+            elif i[1]<new_lst[-1][1]:
+                new_lst.append(i)
+                break
+            elif i[1]>new_lst[j][1]:
+                new_lst.insert(j,i)
+                break
+    return new_lst
+```
+
+---
+
+## Row 42: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    for i in range(len(lst)-1):
+        for j in range(len(lst)-i):
+            if lst[j][1] < lst[j+1][1]:
+                lst[j][1],lst[j+1][1] = lst[j+1][1],lst[j][1]
+            else:
+                continue
+    return lst        
+    pass
+```
+**Error**
+```
+Test: sort_age([("M", 35), ("F", 18), ("M", 23), ("F", 19), ("M", 30), ("M", 17)])
+TypeError: 'tuple' object does not support item assignment (line 5)
+```
+- **Hint 1:** Can you change one item inside a tuple? Think about what you really want to move around in the list.
+- **Hint 2:** On line 5 the swap tries to change `lst[j][1]`, the age inside a tuple, but tuples cannot be changed. Also check that `j+1` on line 4 never goes past the end of the list.
+- **Explanation:** Tuples are fixed once they are made, so Python does not let you assign a new value to one of their items. Line 5 tries to do that with the ages, which causes the TypeError. Swapping only the ages would also split each age from its gender. Swap the whole tuples in the list instead, and make the inner loop stop one step earlier so `j+1` is always a real position.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    for i in range(len(lst)-1):
+        for j in range(len(lst)-i-1):
+            if lst[j][1] < lst[j+1][1]:
+                lst[j],lst[j+1] = lst[j+1],lst[j]
+            else:
+                continue
+    return lst
+    pass
+```
+
+---
+
+## Row 43: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    holder=[]
+    if lst==[]:
+        return []
+    for x in lst:
+        if holder==[]:
+            holder=x
+        elif x[1]>holder[1]:
+            holder=x
+    return holder+sort_age(lst[1:])
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+TypeError: can only concatenate tuple (not "list") to tuple (line 10)
+```
+- **Hint 1:** What kind of value is the oldest item you found, a list or a single tuple? Can you join those two kinds with a plus sign?
+- **Hint 2:** On line 10 `holder` is one tuple, but `sort_age(lst[1:])` gives back a list, so the plus cannot join them. Also, `lst[1:]` drops the first tuple, not the oldest one you found.
+- **Explanation:** After the loop, `holder` holds a single tuple like ('F', 19), while the recursive call returns a list. Python can only join a tuple to a tuple or a list to a list, so it stops with a TypeError. Put the oldest tuple inside a list before joining. Then make sure the recursive call gets the list without that oldest tuple, not just without the first one.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    holder=[]
+    if lst==[]:
+        return []
+    for x in lst:
+        if holder==[]:
+            holder=x
+        elif x[1]>holder[1]:
+            holder=x
+    lst.remove(holder)
+    return [holder]+sort_age(lst)
+```
+
+---
+
+## Row 44: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    list1 = []
+    while lst:
+        biggest = lst[0][1]
+        b = lst[0]
+        for i in range(1,len(lst)-1):
+            if lst[i][1] > biggest:
+                biggest = lst[i][1]
+                s = (lst[i],)
+        lst.remove(biggest)
+        list1.append(biggest)
+    return list1
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+ValueError: list.remove(x): x not in list (line 10)
+```
+- **Hint 1:** What are you trying to remove from the list, a whole tuple or only an age? Which of those is actually inside your list?
+- **Hint 2:** On line 10 `lst.remove(biggest)` looks for the age number, but the list holds tuples, so it is not found. Keep track of the whole tuple (you already have `b` for this), and check that the loop on line 6 reaches the last item too.
+- **Explanation:** `biggest` holds just the age, like 19, but `lst` contains tuples like ('F', 19). The number 19 is not an item of the list, so remove cannot find it and raises a ValueError. To remove and save the oldest person, keep the whole tuple, not only its age. Also, the range on line 6 stops one item too early, so the last tuple is never checked.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    list1 = []
+    while lst:
+        biggest = lst[0][1]
+        b = lst[0]
+        for i in range(1,len(lst)):
+            if lst[i][1] > biggest:
+                biggest = lst[i][1]
+                b = lst[i]
+        lst.remove(b)
+        list1.append(b)
+    return list1
+```
+
+---
+
+## Row 45: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    sort = []
+    while lst:
+        smallest = lst[0]
+        for element in a:
+            if element[1] < smallest[1]:
+                smallest = element
+            lst.remove(smallest)
+            sort.append(smallest)
+        
+    pass
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+NameError: name 'a' is not defined (line 5)
+```
+- **Hint 1:** Which list should your inner loop go through? Make sure every name you use was created first.
+- **Hint 2:** On line 5 the loop goes over `a`, but there is no `a` in this function; your list is called `lst`. After that, check the indentation of lines 8 and 9 and what the function returns at the end.
+- **Explanation:** Python stops with a NameError because `a` was never given a value, so it does not know what to loop over. The list you were given is called `lst`. Once that is fixed, lines 8 and 9 sit inside the for loop, so items get removed while the loop is still looking, and the function ends with pass, so it returns None. Remove the smallest only after the loop has checked every tuple, return your list, and remember the task wants the oldest first.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    sort = []
+    while lst:
+        smallest = lst[0]
+        for element in lst:
+            if element[1] < smallest[1]:
+                smallest = element
+        lst.remove(smallest)
+        sort.append(smallest)
+
+    return sort[::-1]
+```
+
+---
+
+## Row 46: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    biggest = lst[0][1]
+    for i in range(len(lst)):
+        if lst[0][1]<lst[i][1]:
+            biggest = lst[i][1]
+            continue
+        else:
+            biggest = lst[0][1]
+    return [(biggest),] + sort_age(lst[1:len(lst)])         
+    pass
+```
+**Error**
+```
+Test: sort_age([("F", 19)])
+IndexError: list index out of range (line 2)
+```
+- **Hint 1:** Your function calls itself on a shorter list each time. What happens when the list becomes empty?
+- **Hint 2:** Line 2 reads `lst[0]` right away, but there is no check for an empty list, and the call on line 9 always ends up with an empty list. Also, `biggest` only holds an age, and `lst[1:len(lst)]` drops the first tuple, not the oldest one.
+- **Explanation:** Each call removes one item and calls the function again, so sooner or later it gets an empty list. Then line 2 asks for the first item of an empty list, which does not exist, so Python raises an IndexError. A function that calls itself always needs a stopping case for the smallest input, here the empty list. After that, make sure each step keeps the oldest whole tuple and removes that tuple from the list.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    if lst == []:
+        return []
+    biggest = lst[0]
+    for i in range(len(lst)):
+        if biggest[1]<lst[i][1]:
+            biggest = lst[i]
+            continue
+    lst.remove(biggest)
+    return [(biggest),] + sort_age(lst)
+    pass
+```
+
+---
+
+## Row 47: refactory_q4 (sorting, hard): logic
+
+**Student code**
+```python
+def sort_age(lst):
+    a=lst
+    sort=[]
+    while a:
+        smallest=a[0]
+        for element in a:
+            if element[1]<smallest[1]:
+                smallest=element
+    a.remove(smallest)
+    sort.append(smallest)
+    return sort
+```
+**Error**
+```
+Timed out after 5 seconds (the code may have an infinite loop)
+```
+- **Hint 1:** Does anything inside your while loop make the list shorter? If the list never shrinks, when will the loop stop?
+- **Hint 2:** Lines 9 and 10 are indented at the same level as `while`, so they run only after the loop, which never happens. The `while a:` loop only contains the for loop, so `a` never changes.
+- **Explanation:** Python uses indentation to decide which lines belong to a loop. Here only the for loop is inside the while loop, so nothing is removed from `a`, it stays non-empty, and the loop runs forever. That is why the test timed out. Any line that should run in every round of a loop must be indented inside it, and remember the task wants the oldest person first.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    a=lst
+    sort=[]
+    while a:
+        smallest=a[0]
+        for element in a:
+            if element[1]<smallest[1]:
+                smallest=element
+        a.remove(smallest)
+        sort.append(smallest)
+    return sort[::-1]
+```
+
+---
+
+## Row 48: refactory_q4 (sorting, hard): runtime
+
+**Student code**
+```python
+def sort_age(lst):
+    result = [lst[0]]
+    for i in lst[1:]:
+        if i[1] > result[0][1]:
+            result.insert(0, i)
+        elif i[1] < result[-1][1]:
+            result.append(i)
+        else:
+            for j in range(len(result) - 1):
+                if i[1] < result[j][1] and i[1] > result[j+1][1]:
+                    result.insert(j+1, i)
+    return result
+```
+**Error**
+```
+Test: sort_age([])
+IndexError: list index out of range (line 2)
+```
+- **Hint 1:** What happens with an empty list? Is there a first item to start your result with?
+- **Hint 2:** Line 2 reads `lst[0]` straight away, so when `lst` is empty there is nothing at position 0. Handle the empty list before this line.
+- **Explanation:** Line 2 builds the result from the first item of the list. When the list is empty, there is no item at index 0 (the first position), so Python raises an IndexError. The rest of your sorting works, it just needs a starting item. Always think about the empty input first and return the right answer for it before reading any items.
+
+**Fixed code**
+```python
+def sort_age(lst):
+    if lst == []:
+        return []
+    result = [lst[0]]
+    for i in lst[1:]:
+        if i[1] > result[0][1]:
+            result.insert(0, i)
+        elif i[1] < result[-1][1]:
+            result.append(i)
+        else:
+            for j in range(len(result) - 1):
+                if i[1] < result[j][1] and i[1] > result[j+1][1]:
+                    result.insert(j+1, i)
+    return result
+```
+
+---
+
+## Row 49: refactory_q5 (built-ins, medium): logic
+
+**Student code**
+```python
+def top_k(lst, k):
+    sort = []
+    while lst:
+        biggest = lst[0]
+        for i in lst[1:]:
+            if i > biggest:
+                oldest = i
+        lst.remove(biggest)
+        sort.append(biggest)
+    
+    n = 1
+    sort_k = []
+    while n <= k:
+        sort_k.append(sort.pop(0))
+        n += 1
+    
+    return sort_k
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+Expected: [9, 9, 9, 9, 7]
+Got: [9, 9, 4, 9, 7]
+```
+- **Hint 1:** When the inner loop finds a number bigger than the one you picked, does that bigger number really get remembered as the new biggest?
+- **Hint 2:** On line 7 the bigger number is saved in a new name, `oldest`, so `biggest` never changes and stays equal to `lst[0]`.
+- **Explanation:** Right now `biggest` is set to the first item and is never updated, because the loop stores the bigger value in `oldest` instead. So each round just takes whatever number is at the front of the list, and the result keeps the original order, giving [9, 9, 4, 9, 7]. When you track a running biggest value, always update the same variable you compare against.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    sort = []
+    while lst:
+        biggest = lst[0]
+        for i in lst[1:]:
+            if i > biggest:
+                biggest = i
+        lst.remove(biggest)
+        sort.append(biggest)
+    
+    n = 1
+    sort_k = []
+    while n <= k:
+        sort_k.append(sort.pop(0))
+        n += 1
+    
+    return sort_k
+```
+
+---
+
+## Row 50: refactory_q5 (built-ins, medium): logic
+
+**Student code**
+```python
+def top_k(lst, k):
+    l = []
+    if k > len(lst):
+        return False
+    elif k == 1:
+        return lst
+    else:
+        a = max(lst)
+        lst.remove(a)
+        l.append(a)
+        top_k(lst, k-1)
+        return l
+        
+    # Fill in your code here
+    pass
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+Expected: [9, 9, 9, 9, 7]
+Got: [9]
+```
+- **Hint 1:** When your function calls itself, it gives back a list of the remaining top numbers. Where does that list go, and does it ever reach your answer?
+- **Hint 2:** On line 11 the result of `top_k(lst, k-1)` is not saved anywhere, so line 12 returns `l`, which only holds the one number added on line 10. The base case on lines 5 and 6 also returns the whole leftover list instead of stopping cleanly.
+- **Explanation:** Each call adds just one number to its own list `l`, then calls itself, but the list that the inner call returns is thrown away. So the outer call only returns its own single number, which is why the answer is [9]. In recursion, the value returned by the smaller call must be joined with your own part, and the stopping case should return exactly what is left to add (for k equal to 0, nothing).
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    l = []
+    if k > len(lst):
+        return False
+    elif k == 0:
+        return []
+    else:
+        a = max(lst)
+        lst.remove(a)
+        l.append(a)
+        l += top_k(lst, k-1)
+        return l
+        
+    # Fill in your code here
+    pass
+```
+
+---
+
+## Row 51: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    sort = []
+    while lst: 
+        biggest = lst[0]
+        for element in lst:
+            if ele > biggest:
+                biggest = ele
+                
+        lst.remove(element)
+        sort.append(element)
+        if len(sort)==k:
+            break
+    return sort
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+NameError: name 'ele' is not defined (line 6)
+```
+- **Hint 1:** Check the name of your loop variable. Is the name you use inside the loop the same one you created in the loop header?
+- **Hint 2:** On line 6 (and line 7) the code uses `ele`, but the loop on line 5 names each item `element`. Also look at lines 9 and 10: after the loop they should use the biggest number found, and the check for k items should happen before a number is added.
+- **Explanation:** Python only knows names that were created earlier, and the loop on line 5 creates `element`, not `ele`. So when line 6 reaches `ele`, Python stops with a NameError. Always use the exact same spelling for a variable everywhere. After that, remember that the number to remove and keep is the one stored in `biggest`, and that when k is 0 the result should stay empty.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    sort = []
+    while lst: 
+        if len(sort)==k:
+            break
+        biggest = lst[0]
+        for element in lst:
+            if element > biggest:
+                biggest = element
+                
+        lst.remove(biggest)
+        sort.append(biggest)
+    return sort
+```
+
+---
+
+## Row 52: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    count = 0
+    op = []
+    big = lst[0]
+    while count < k:
+        op += max(lst)
+        count += 1
+    return op
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+TypeError: 'int' object is not iterable (line 6)
+```
+- **Hint 1:** Adding to a list with plus-equals expects another list on the right side. What kind of value does max give you?
+- **Hint 2:** On line 6, `max(lst)` is a single number, and `op += ...` needs a list there. Also notice that the biggest number is never taken out of `lst`, so every round would pick the same one.
+- **Explanation:** The plus-equals on a list joins another list (or other collection) onto it, item by item. Here `max(lst)` is just one int, and Python cannot go through an int item by item, so it says 'int' object is not iterable. To add one number, put it in a list or use append. After adding it, remove it from `lst` so the next round finds the next largest number.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    count = 0
+    op = []
+    big = lst[0]
+    while count < k:
+        op += [max(lst)]
+        lst.remove(max(lst))
+        count += 1
+    return op
+```
+
+---
+
+## Row 53: refactory_q5 (built-ins, medium): logic
+
+**Student code**
+```python
+def top_k(lst, k):
+    a=[]
+    while lst:
+        largest = lst[0]
+        for i in lst:
+            if i > largest:
+                largest = i
+                lst.remove(largest)
+                a.append(largest)
+    return a[:k]
+```
+**Error**
+```
+Timed out after 5 seconds (the code may have an infinite loop)
+```
+- **Hint 1:** What happens in a round where the first number is already the biggest one? Does the list get any shorter then?
+- **Hint 2:** Lines 8 and 9 are indented inside the `if` on line 6, so a number is only removed and saved when something bigger than `largest` is found. They should run once per round, after the `for` loop is done.
+- **Explanation:** The removing and saving happen inside the `if`, so they only run when a bigger number turns up during the loop. When the first number in `lst` is already the largest, nothing is removed, `lst` never becomes empty, and the `while` loop runs forever, which causes the timeout. A loop that waits for a list to become empty must make the list shorter on every round.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    a=[]
+    while lst:
+        largest = lst[0]
+        for i in lst:
+            if i > largest:
+                largest = i
+        lst.remove(largest)
+        a.append(largest)
+    return a[:k]
+```
+
+---
+
+## Row 54: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    new = []
+    while len(lst) > len(lst) - k:
+        new.append(lst.pop(max(lst)))
+        
+    return new
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+IndexError: pop index out of range (line 4)
+```
+- **Hint 1:** Taking an item out by position and taking it out by value are different things. Which one is your code doing with the biggest number?
+- **Hint 2:** On line 4, `lst.pop(...)` treats `max(lst)` as a position, so it tries to pop position 9 of a list with 9 items. Also the `while` condition on line 3 compares `len(lst)` with itself minus k, which stays true until the list is empty.
+- **Explanation:** pop takes an index, which is the position of an item, not the item's value. Here `max(lst)` is 9, but the list only has positions 0 to 8, so Python says the pop index is out of range. To remove the biggest number you first need its position, or you can remove it by value. Also, since both sides of the loop condition change together, the loop should count how many numbers you have collected instead.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    new = []
+    while len(new) < k:
+        new.append(lst.pop(lst.index(max(lst))))
+        
+    return new
+```
+
+---
+
+## Row 55: refactory_q5 (built-ins, medium): logic
+
+**Student code**
+```python
+def top_k(lst, k):
+    if lst == []:
+        return []
+    elif k == 0:
+        return lst
+    else:
+        final = []
+        while lst:
+            element = max(lst)
+            final += [element,]
+            lst.remove(element)
+            if len(final) == k:
+                break
+        return final
+```
+**Error**
+```
+Test: top_k([4, 5, 2, 3, 1, 6], 0)
+Expected: []
+Got: [4, 5, 2, 3, 1, 6]
+```
+- **Hint 1:** If someone asks for the top 0 numbers, how many numbers should come back?
+- **Hint 2:** Look at the `elif k == 0` case on line 5. It returns the whole input list `lst`, but asking for zero numbers should give an empty list.
+- **Explanation:** When k is 0 the code returns `lst` itself, so all the numbers come back, in their original order. That is why the test got [4, 5, 2, 3, 1, 6] instead of []. A special case must return the same kind of answer as the normal case, here a list holding exactly k numbers.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    if lst == []:
+        return []
+    elif k == 0:
+        return []
+    else:
+        final = []
+        while lst:
+            element = max(lst)
+            final += [element,]
+            lst.remove(element)
+            if len(final) == k:
+                break
+        return final
+```
+
+---
+
+## Row 56: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    new = []
+    while len(lst) > len(lst) - k:
+        top = max(lst) 
+        new.append(top)
+        lst.remove(top)
+        
+    return new
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+ValueError: max() iterable argument is empty (line 4)
+```
+- **Hint 1:** Your loop should stop after k numbers. Does the loop condition ever become false while numbers are being removed?
+- **Hint 2:** On line 3, both sides of the condition use `len(lst)`, so when the list shrinks both sides shrink together and the condition stays true. The loop keeps going until `lst` is empty, and then `max(lst)` on line 4 fails.
+- **Explanation:** The condition compares the length of the list with that same length minus k, which is always bigger when k is more than 0. So the loop never stops by itself and removes every number, and on the next round `max` is called on an empty list, which gives the ValueError. A loop condition must use something that changes toward the stopping point, such as how many numbers you have collected.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    new = []
+    while len(new) < k:
+        top = max(lst) 
+        new.append(top)
+        lst.remove(top)
+        
+    return new
+```
+
+---
+
+## Row 57: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    counter=0
+    new_lst=[]
+    while counter<k:
+        new_lst.append(lst.remove(max(lst)))
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+ValueError: max() iterable argument is empty (line 5)
+```
+- **Hint 1:** Your loop runs while a counter is below k. What makes that counter go up?
+- **Hint 2:** The `while` loop on line 4 checks `counter`, but nothing inside the loop ever changes it, so the loop keeps removing numbers until `lst` is empty. Line 5 also appends what `remove` gives back, which is None, and the function never returns `new_lst`.
+- **Explanation:** Since `counter` stays at 0, the loop never stops by itself and keeps removing the biggest number. Once the list is empty, `max` gets an empty list and Python raises a ValueError. A counting loop must increase its counter every round. After that, keep in mind that remove changes the list but gives back None, and a function needs a return statement to give back its result.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    counter=0
+    new_lst=[]
+    while counter<k:
+        new_lst.append(max(lst))
+        lst.remove(max(lst))
+        counter+=1
+    return new_lst
+```
+
+---
+
+## Row 58: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    n = len(lst) - k
+    counter = 0
+    while counter < k:
+        lst.remove(min(lst))
+        counter = counter + 1
+    sort_list = []
+    while lst != []:
+        sort_lst.append(max(lst))
+        lst.remove(max(lst))
+    return sort_list
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+NameError: name 'sort_lst' is not defined (line 9)
+```
+- **Hint 1:** Look closely at the spelling of your result list each time you use it. Is it the same name everywhere?
+- **Hint 2:** Line 7 creates `sort_list`, but line 9 appends to `sort_lst`, a name that was never created. Also, the first loop on line 4 runs k times, but you want to remove the smallest numbers until only k are left, which is what `n` on line 2 counts.
+- **Explanation:** Python treats `sort_list` and `sort_lst` as two different names, and only the first one exists, so line 9 stops with a NameError. Names must be spelled exactly the same every time. Once that works, check how many small numbers are removed: to keep k numbers you remove len(lst) minus k of them, not k.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    n = len(lst) - k
+    counter = 0
+    while counter < n:
+        lst.remove(min(lst))
+        counter = counter + 1
+    sort_list = []
+    while lst != []:
+        sort_list.append(max(lst))
+        lst.remove(max(lst))
+    return sort_list
+```
+
+---
+
+## Row 59: refactory_q5 (built-ins, medium): runtime
+
+**Student code**
+```python
+def top_k(lst, k):
+    new_list = []
+    for i in lst:
+        if k==0:
+            break
+        new_list+=max(lst)
+        k-1
+    return lst
+    pass
+```
+**Error**
+```
+Test: top_k([9, 9, 4, 9, 7, 9, 3, 1, 6], 5)
+TypeError: 'int' object is not iterable (line 6)
+```
+- **Hint 1:** Adding to a list with plus-equals expects another list on the right side. What kind of value does max give you?
+- **Hint 2:** On line 6, `max(lst)` is a single number, but `new_list += ...` needs a list. Also check line 7, which does not change `k`, and line 8, which returns `lst` instead of the list you built.
+- **Explanation:** The plus-equals on a list adds every item of another collection, but `max(lst)` is one int, and Python cannot go through an int item by item, so it raises a TypeError. To add a single number, put it inside a list or use append. After that, remember to remove each chosen number from the input, to really lower k by storing the new value, and to return the list you built.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    new_list = []
+    for i in lst[:]:
+        if k==0:
+            break
+        new_list+=[max(lst)]
+        lst.remove(max(lst))
+        k=k-1
+    return new_list
+    pass
+```
+
+---
+
+## Row 60: refactory_q5 (built-ins, medium): logic
+
+**Student code**
+```python
+def top_k(lst, k):
+    tmp = []
+    while len(lst) > 0:
+        tmp.append(max(lst))
+        lst.remove(max(lst))
+    return tmp[:5]
+```
+**Error**
+```
+Test: top_k([4, 5, 2, 3, 1, 6], 6)
+Expected: [6, 5, 4, 3, 2, 1]
+Got: [6, 5, 4, 3, 2]
+```
+- **Hint 1:** The function is given k to say how many numbers to return. Does your code actually use k anywhere?
+- **Hint 2:** On line 6 the slice always uses 5, so you always get at most 5 numbers no matter what `k` is.
+- **Explanation:** The loop builds the full list from largest to smallest correctly, but the slice at the end keeps a fixed number of items, 5. When the test asks for 6 numbers, only 5 come back, so the 1 is missing. Use the parameter that the function receives instead of a fixed number, so the code works for any k.
+
+**Fixed code**
+```python
+def top_k(lst, k):
+    tmp = []
+    while len(lst) > 0:
+        tmp.append(max(lst))
+        lst.remove(max(lst))
+    return tmp[:k]
+```
+
+---
